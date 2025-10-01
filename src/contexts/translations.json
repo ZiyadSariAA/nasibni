@@ -1,0 +1,98 @@
+{
+  "common": {
+    "skip": {
+      "ar": "تخطي",
+      "en": "Skip"
+    },
+    "next": {
+      "ar": "التالي",
+      "en": "Next"
+    },
+    "getStarted": {
+      "ar": "ابدأ",
+      "en": "Get Started"
+    },
+    "english": {
+      "ar": "English",
+      "en": "English"
+    },
+    "arabic": {
+      "ar": "العربية",
+      "en": "العربية"
+    }
+  },
+  "app": {
+    "name": {
+      "ar": "ناسبني",
+      "en": "Nasibni"
+    },
+    "tagline": {
+      "ar": "اعثر على شريك حياتك",
+      "en": "Find your life partner"
+    }
+  },
+  "signIn": {
+    "googleButton": {
+      "ar": "تسجيل الدخول بجوجل",
+      "en": "Continue with Google"
+    },
+    "terms": {
+      "ar": "باستخدام التطبيق، فإنك توافق على شروط الاستخدام وسياسة الخصوصية",
+      "en": "By using the app, you agree to our Terms of Service and Privacy Policy"
+    }
+  },
+  "welcome": {
+    "slide1": {
+      "title": {
+        "ar": "مرحباً بك في ناسبني",
+        "en": "Welcome to Nasibni"
+      },
+      "description": {
+        "ar": "تطبيق الزواج المصمم للعرب والمسلمين",
+        "en": "Marriage app designed for Arabs and Muslims"
+      }
+    },
+    "slide2": {
+      "title": {
+        "ar": "مميزات التطبيق",
+        "en": "Key Features"
+      },
+      "description": {
+        "ar": "تصفح آمن • محادثات محترمة • خصوصية كاملة",
+        "en": "Safe browsing • Respectful chats • Full privacy"
+      }
+    },
+    "slide3": {
+      "title": {
+        "ar": "ابدأ الآن",
+        "en": "Get Started"
+      },
+      "description": {
+        "ar": "رحلتك للبحث عن شريك الحياة تبدأ هنا",
+        "en": "Your journey to find your life partner starts here"
+      }
+    }
+  },
+  "languageContext": {
+    "error": {
+      "ar": "يجب استخدام useLanguage داخل LanguageProvider",
+      "en": "useLanguage must be used within a LanguageProvider"
+    },
+    "detectionError": {
+      "ar": "خطأ في اكتشاف اللغة",
+      "en": "Language detection error"
+    },
+    "fallback": {
+      "ar": "الرجوع إلى الإنجليزية في حالة وجود خطأ",
+      "en": "Fallback to English if there's any error"
+    },
+    "deviceLanguage": {
+      "ar": "تعيين اللغة بناءً على لغة الجهاز",
+      "en": "Set language based on device language"
+    },
+    "defaultEnglish": {
+      "ar": "الافتراضي إلى الإنجليزية للغات الأخرى",
+      "en": "Default to English for other languages"
+    }
+  }
+}

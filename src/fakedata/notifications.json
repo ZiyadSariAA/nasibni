@@ -1,0 +1,46 @@
+{
+  "notifications": [
+    {
+      "id": "notif_1",
+      "userId": "1",
+      "type": "new_match",
+      "title": "تطابق جديد!",
+      "message": "لديك تطابق جديد مع سارة أحمد",
+      "relatedUserId": "2",
+      "timestamp": "2024-01-14T15:20:00Z",
+      "read": false
+    },
+    {
+      "id": "notif_2",
+      "userId": "1",
+      "type": "new_message",
+      "title": "رسالة جديدة",
+      "message": "لديك رسالة جديدة من فاطمة حسن",
+      "relatedUserId": "4",
+      "timestamp": "2024-01-15T09:15:00Z",
+      "read": false
+    },
+    {
+      "id": "notif_3",
+      "userId": "1",
+      "type": "profile_view",
+      "title": "زيارة ملف شخصي",
+      "message": "خالد عبدالله شاهد ملفك الشخصي",
+      "relatedUserId": "3",
+      "timestamp": "2024-01-15T10:00:00Z",
+      "read": true
+    },
+    {
+      "id": "notif_4",
+      "userId": "1",
+      "type": "match_request",
+      "title": "طلب تطابق جديد",
+      "message": "خالد عبدالله يريد التواصل معك",
+      "relatedUserId": "3",
+      "timestamp": "2024-01-15T08:00:00Z",
+      "read": false
+    }
+  ],
+  "unreadCount": 3
+}
+

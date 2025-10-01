@@ -1,0 +1,150 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "displayName": "أحمد محمد",
+      "age": 28,
+      "gender": "male",
+      "location": {
+        "country": "السعودية",
+        "city": "الرياض"
+      },
+      "bio": "مهندس برمجيات، أبحث عن شريكة حياة ملتزمة",
+      "education": "بكالوريوس هندسة حاسب",
+      "profession": "مهندس برمجيات",
+      "maritalStatus": "أعزب",
+      "religion": "مسلم",
+      "prayer": "ملتزم",
+      "smoking": "لا",
+      "height": 175,
+      "interests": ["القراءة", "البرمجة", "الرياضة", "السفر"],
+      "profileImage": "undraw_chill-guy-avatar_tqsm.png",
+      "verified": true,
+      "online": true,
+      "lastSeen": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": "2",
+      "displayName": "سارة أحمد",
+      "age": 25,
+      "gender": "female",
+      "location": {
+        "country": "مصر",
+        "city": "القاهرة"
+      },
+      "bio": "معلمة لغة عربية، أحب الأدب والشعر",
+      "education": "ماجستير لغة عربية",
+      "profession": "معلمة",
+      "maritalStatus": "عزباء",
+      "religion": "مسلمة",
+      "prayer": "ملتزمة",
+      "smoking": "لا",
+      "height": 165,
+      "interests": ["القراءة", "الشعر", "الطبخ", "الخط العربي"],
+      "profileImage": "undraw_cool-girl-avatar_fifz.png",
+      "verified": true,
+      "online": false,
+      "lastSeen": "2024-01-15T09:15:00Z"
+    },
+    {
+      "id": "3",
+      "displayName": "خالد عبدالله",
+      "age": 32,
+      "gender": "male",
+      "location": {
+        "country": "الإمارات",
+        "city": "دبي"
+      },
+      "bio": "طبيب أسنان، أعمل في عيادة خاصة",
+      "education": "دكتوراه طب الأسنان",
+      "profession": "طبيب أسنان",
+      "maritalStatus": "أعزب",
+      "religion": "مسلم",
+      "prayer": "ملتزم",
+      "smoking": "لا",
+      "height": 180,
+      "interests": ["الطب", "الرياضة", "التطوع", "السفر"],
+      "profileImage": "undraw_avatar-traveler_ljy2.png",
+      "verified": true,
+      "online": true,
+      "lastSeen": "2024-01-15T10:45:00Z"
+    },
+    {
+      "id": "4",
+      "displayName": "فاطمة حسن",
+      "age": 27,
+      "gender": "female",
+      "location": {
+        "country": "الأردن",
+        "city": "عمّان"
+      },
+      "bio": "صيدلانية، أحب مساعدة الناس",
+      "education": "بكالوريوس صيدلة",
+      "profession": "صيدلانية",
+      "maritalStatus": "عزباء",
+      "religion": "مسلمة",
+      "prayer": "ملتزمة",
+      "smoking": "لا",
+      "height": 162,
+      "interests": ["الصحة", "القراءة", "الرسم", "التطوع"],
+      "profileImage": "undraw_a-woman-avatar_ifsl.png",
+      "verified": true,
+      "online": false,
+      "lastSeen": "2024-01-15T08:20:00Z"
+    },
+    {
+      "id": "5",
+      "displayName": "يوسف إبراهيم",
+      "age": 30,
+      "gender": "male",
+      "location": {
+        "country": "الكويت",
+        "city": "الكويت"
+      },
+      "bio": "محاسب قانوني، أبحث عن الاستقرار",
+      "education": "بكالوريوس محاسبة",
+      "profession": "محاسب قانوني",
+      "maritalStatus": "أعزب",
+      "religion": "مسلم",
+      "prayer": "ملتزم",
+      "smoking": "لا",
+      "height": 178,
+      "interests": ["المال والأعمال", "القراءة", "السباحة", "الشطرنج"],
+      "profileImage": "undraw_selfie_1xk7.png",
+      "verified": false,
+      "online": true,
+      "lastSeen": "2024-01-15T10:50:00Z"
+    },
+    {
+      "id": "6",
+      "displayName": "مريم علي",
+      "age": 24,
+      "gender": "female",
+      "location": {
+        "country": "البحرين",
+        "city": "المنامة"
+      },
+      "bio": "مصممة جرافيك، أحب الفن والإبداع",
+      "education": "بكالوريوس تصميم جرافيك",
+      "profession": "مصممة جرافيك",
+      "maritalStatus": "عزباء",
+      "religion": "مسلمة",
+      "prayer": "ملتزمة",
+      "smoking": "لا",
+      "height": 160,
+      "interests": ["التصميم", "الفن", "التصوير", "السفر"],
+      "profileImage": "undraw_taking-selfie_swcs.png",
+      "verified": true,
+      "online": false,
+      "lastSeen": "2024-01-15T07:30:00Z"
+    }
+  ],
+  "stats": {
+    "totalUsers": 6,
+    "maleUsers": 3,
+    "femaleUsers": 3,
+    "verifiedUsers": 5,
+    "onlineUsers": 3
+  }
+}
+

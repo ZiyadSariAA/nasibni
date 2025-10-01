@@ -1,0 +1,44 @@
+{
+  "searchPreferences": {
+    "userId": "1",
+    "gender": "female",
+    "ageRange": {
+      "min": 22,
+      "max": 30
+    },
+    "locationPreferences": {
+      "countries": ["السعودية", "الإمارات", "الكويت", "قطر", "البحرين", "عمان"],
+      "distance": 500
+    },
+    "education": ["بكالوريوس", "ماجستير", "دكتوراه"],
+    "maritalStatus": ["عزباء"],
+    "religion": "مسلمة",
+    "prayer": ["ملتزمة"],
+    "smoking": "لا",
+    "heightRange": {
+      "min": 155,
+      "max": 175
+    },
+    "interests": ["القراءة", "الأدب", "الطبخ", "السفر"]
+  },
+  "privacySettings": {
+    "userId": "1",
+    "profileVisibility": "public",
+    "showOnlineStatus": true,
+    "showLastSeen": true,
+    "allowMessages": "matches_only",
+    "showLocation": true,
+    "showAge": true
+  },
+  "notificationSettings": {
+    "userId": "1",
+    "pushNotifications": true,
+    "emailNotifications": true,
+    "newMatches": true,
+    "newMessages": true,
+    "profileViews": false,
+    "matchRequests": true,
+    "promotions": false
+  }
+}
+
