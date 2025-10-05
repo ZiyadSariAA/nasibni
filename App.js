@@ -2,6 +2,7 @@ import './global.css';
 import { StatusBar } from 'expo-status-bar';
 import AppNavigator from './src/navigation/AppNavigator';
 import { LanguageProvider } from './src/contexts/LanguageContext';
+import { TranslationProvider } from './src/contexts/TranslationContext';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { OnboardingProvider } from './src/contexts/OnboardingContext';
 import { 
@@ -35,8 +36,10 @@ export default function App() {
     <AuthProvider>
       <OnboardingProvider>
         <LanguageProvider>
-          <AppNavigator />
-          <StatusBar style="auto" />
+          <TranslationProvider>
+            <AppNavigator />
+            <StatusBar style="auto" />
+          </TranslationProvider>
         </LanguageProvider>
       </OnboardingProvider>
     </AuthProvider>

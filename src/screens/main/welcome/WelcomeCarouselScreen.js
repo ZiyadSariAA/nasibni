@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, StatusBar } from 'react-native';
-import { colors } from '../../../config/theme';
+import { View, ScrollView, Dimensions, StatusBar } from 'react-native';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { welcomeSlides } from './welcomeData';
 import { WelcomeSlide, WelcomeDots, WelcomeNavigation } from '../../../components/main';
@@ -8,9 +7,14 @@ import { WelcomeSlide, WelcomeDots, WelcomeNavigation } from '../../../component
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeCarouselScreen({ navigation }) {
-  const { isArabic } = useLanguage();
+  const { isArabic, isLoading } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef(null);
+
+  // Don't render until language is loaded
+  if (isLoading) {
+    return null;
+  }
 
   const slides = isArabic ? welcomeSlides.arabic : welcomeSlides.english;
 
@@ -40,8 +44,8 @@ export default function WelcomeCarouselScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+    <View className="flex-1 bg-white">
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       <WelcomeNavigation
         isArabic={isArabic}
@@ -59,11 +63,14 @@ export default function WelcomeCarouselScreen({ navigation }) {
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        className="flex-1"
+        contentContainerStyle={{ alignItems: 'center' }}
       >
         {slides.map((slide) => (
-          <View key={slide.id} style={styles.slideContainer}>
+          <View 
+            key={slide.id} 
+            style={{ width: width, height: height }}
+          >
             <WelcomeSlide slide={slide} isArabic={isArabic} />
           </View>
         ))}
@@ -73,20 +80,3 @@ export default function WelcomeCarouselScreen({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    alignItems: 'center',
-  },
-  slideContainer: {
-    width: width,
-    height: height,
-  },
-});

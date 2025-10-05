@@ -1,71 +1,152 @@
-import React from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
-import { Text } from './index';
-import { FONTS, TEXT_STYLES } from '../../config/fonts';
+import React, { useEffect, useRef } from 'react';
+import { View, Image, Dimensions, Animated } from 'react-native';
+import Text from './Text';
+import { FONTS } from '../../config/fonts';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeSlide({ slide, isArabic }) {
+  const imageWidth = Math.min(width * 0.75, 280);
+  const imageHeight = Math.min(height * 0.3, 220);
+
+  const imageOpacity = useRef(new Animated.Value(0)).current;
+  const imageScale = useRef(new Animated.Value(0.8)).current;
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+  const titleTranslateY = useRef(new Animated.Value(20)).current;
+  const descriptionOpacity = useRef(new Animated.Value(0)).current;
+  const descriptionTranslateY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    // Reset animations
+    imageOpacity.setValue(0);
+    imageScale.setValue(0.8);
+    titleOpacity.setValue(0);
+    titleTranslateY.setValue(20);
+    descriptionOpacity.setValue(0);
+    descriptionTranslateY.setValue(20);
+
+    // Animate image
+    Animated.parallel([
+      Animated.spring(imageOpacity, {
+        toValue: 1,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+      Animated.spring(imageScale, {
+        toValue: 1,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+    ]).start();
+
+    // Animate title with delay
+    Animated.parallel([
+      Animated.spring(titleOpacity, {
+        toValue: 1,
+        delay: 150,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+      Animated.spring(titleTranslateY, {
+        toValue: 0,
+        delay: 150,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+    ]).start();
+
+    // Animate description with delay
+    Animated.parallel([
+      Animated.spring(descriptionOpacity, {
+        toValue: 1,
+        delay: 300,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+      Animated.spring(descriptionTranslateY, {
+        toValue: 0,
+        delay: 300,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+    ]).start();
+  }, [slide.id]);
+
   return (
-    <View style={styles.slide}>
-      <View style={styles.content}>
-        <Image source={slide.image} style={styles.image} resizeMode="contain" />
-        <Text 
-          variant="h2" 
-          weight="bold" 
-          align="center"
-          style={[styles.title, isArabic && styles.rtlText]}
+    <View className="flex-1 justify-center items-center px-6 pb-32">
+      <View
+        className="items-center"
+        style={{ maxWidth: width * 0.85 }}
+      >
+        <Animated.View
+          style={{
+            opacity: imageOpacity,
+            transform: [{ scale: imageScale }],
+            marginBottom: 40,
+            alignItems: 'center',
+          }}
         >
-          {slide.title}
-        </Text>
-        <Text 
-          variant="body" 
-          color="secondary" 
-          align="center"
-          style={[styles.description, isArabic && styles.rtlText]}
+          {/* Icon above the image */}
+          {slide.icon && (
+            <View style={{ marginBottom: 20 }}>
+              {slide.icon}
+            </View>
+          )}
+          
+          <Image
+            source={slide.image}
+            style={{
+              width: imageWidth,
+              height: imageHeight,
+            }}
+            resizeMode="contain"
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={{
+            opacity: titleOpacity,
+            transform: [{ translateY: titleTranslateY }],
+            marginBottom: 20,
+          }}
         >
-          {slide.description}
-        </Text>
+          <Text
+            variant="h2"
+            weight="bold"
+            style={{
+              color: '#4F2396',
+              fontFamily: FONTS.bold,
+              textAlign: 'center',
+              fontSize: 24,
+              lineHeight: 32,
+            }}
+          >
+            {slide.title}
+          </Text>
+        </Animated.View>
+
+        <Animated.View
+          style={{
+            opacity: descriptionOpacity,
+            transform: [{ translateY: descriptionTranslateY }],
+            paddingHorizontal: 10,
+          }}
+        >
+          <Text
+            variant="body"
+            style={{
+              color: '#6B7280',
+              fontFamily: FONTS.regular,
+              textAlign: 'center',
+              fontSize: 16,
+              lineHeight: 24,
+            }}
+          >
+            {slide.description}
+          </Text>
+        </Animated.View>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  slide: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 60,
-  },
-  content: {
-    alignItems: 'center',
-    maxWidth: width * 0.85,
-  },
-  image: {
-    width: Math.min(width * 0.7, 320),
-    height: Math.min(height * 0.3, 240),
-    marginBottom: 60,
-  },
-  title: {
-    marginBottom: 30,
-    fontSize: Math.min(width * 0.08, 36),
-    color: '#5B2C91',
-    lineHeight: Math.min(width * 0.1, 48),
-    fontFamily: FONTS.bold,
-    includeFontPadding: true,
-  },
-  description: {
-    lineHeight: 32,
-    fontSize: Math.min(width * 0.05, 22),
-    color: '#6B7280',
-    textAlign: 'center',
-    fontFamily: FONTS.regular,
-    includeFontPadding: true,
-  },
-  rtlText: {
-    textAlign: 'right',
-    writingDirection: 'rtl',
-  },
-});

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { colors } from '../../../config/theme';
+import { View, Text, Image } from 'react-native';
 import { APP_NAME_STYLE } from '../../../config/fonts';
 
 export default function SplashScreen({ navigation }) {
@@ -13,36 +12,20 @@ export default function SplashScreen({ navigation }) {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
+    <View className="flex-1 bg-primary items-center justify-center">
+      <View className="items-center">
         <Image 
           source={require('../../../assets/logos/Group1.png')} 
-          style={styles.logoImage}
+          className="w-30 h-30 mb-6"
           resizeMode="contain"
         />
-        <Text style={[styles.logoText, APP_NAME_STYLE]}>ناسبني</Text>
+        <Text
+          className="text-4xl"
+          style={{...APP_NAME_STYLE, color: '#FFFFFF'}}
+        >
+          ناسبني
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#5B2C91',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-  },
-  logoImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 24,
-  },
-  logoText: {
-    fontSize: 40,
-    color: '#FFFFFF',
-  },
-});

@@ -1,6 +1,14 @@
 ﻿import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import signinData from '../fakedata/sigingindata.json';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -17,79 +25,182 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(true);
 
-  // Initialize auth state - Only load completed profiles
+  // Initialize auth state - Listen to Firebase auth changes
   useEffect(() => {
-    const checkExistingUser = async () => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
-        const storedUser = await AsyncStorage.getItem('currentUser');
-        if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          // Only set user if profile is completed
-          if (userData.profile?.completed) {
-            setUser(userData);
-          } else {
-            // Clear incomplete profile
-            await AsyncStorage.removeItem('currentUser');
+        if (firebaseUser) {
+          console.log('🔐 Firebase user detected:', firebaseUser.email);
+
+          // Get user profile from Firestore
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          const userDocData = userDoc.data();
+          const userData = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName || userDocData?.displayName || '',
+            profile: {
+              completed: userDocData?.profileCompleted || false,
+              data: userDocData?.profileData || null,
+            },
+          };
+
+          // Only persist completed profiles
+          if (userData.profile.completed) {
+            await AsyncStorage.setItem('currentUser', JSON.stringify(userData));
+            console.log('✅ Saved completed profile to storage');
           }
+
+          setUser(userData);
+        } else {
+          // No user signed in
+          await AsyncStorage.removeItem('currentUser');
+          setUser(null);
         }
-        setLoading(false);
-        setInitializing(false);
       } catch (error) {
-        console.error('Error checking existing user:', error);
+        console.error('Error in auth state change:', error);
+      } finally {
         setLoading(false);
         setInitializing(false);
       }
-    };
+    });
 
-    checkExistingUser();
+    // Cleanup subscription
+    return () => unsubscribe();
   }, []);
 
-  // Sign in with email and password (using fake data)
+  // Sign in with email and password (Firebase)
   const signInWithEmail = async (email, password) => {
     try {
       setLoading(true);
-      console.log('🔐 Starting sign-in process...');
+      console.log('🔐 Starting Firebase sign-in...');
 
-      // Find user in fake data
-      const account = signinData.testAccounts.find(
-        acc => acc.email === email && acc.password === password
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
 
-      if (!account) {
-        throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-      }
+      console.log('✅ Firebase sign-in successful:', firebaseUser.email);
 
-      console.log('✅ User found:', account.displayName);
+      // Get user profile from Firestore
+      const userDocRef = doc(db, 'users', firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
 
-      // Create user object
+      const userDocData = userDoc.data();
       const userData = {
-        uid: account.id,
-        email: account.email,
-        displayName: account.displayName,
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName || userDocData?.displayName || '',
         profile: {
-          completed: account.profileCompleted,
+          completed: userDocData?.profileCompleted || false,
+          data: userDocData?.profileData || null,
         },
       };
 
       // ONLY save to AsyncStorage if profile is completed
-      if (account.profileCompleted) {
+      if (userData.profile.completed) {
         await AsyncStorage.setItem('currentUser', JSON.stringify(userData));
         console.log('✅ Saved completed profile to storage');
       } else {
         console.log('⚠️ Profile incomplete - NOT saving to storage');
       }
 
-      // Set user state (in memory only if incomplete)
       setUser(userData);
-
-      console.log('✅ User signed in successfully');
       setLoading(false);
 
       return userData;
     } catch (error) {
       console.error('❌ Sign-In Error:', error);
       setLoading(false);
-      throw error;
+
+      // Handle Firebase errors with user-friendly messages
+      let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
+
+      if (error.code === 'auth/invalid-email') {
+        errorMessage = 'البريد الإلكتروني غير صالح';
+      } else if (error.code === 'auth/user-disabled') {
+        errorMessage = 'تم تعطيل هذا الحساب';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'المستخدم غير موجود';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'كلمة المرور غير صحيحة';
+      } else if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+      }
+
+      throw new Error(errorMessage);
+    }
+  };
+
+  // Sign up with email and password
+  const signUpWithEmail = async (email, password, displayName = '') => {
+    try {
+      setLoading(true);
+      console.log('📝 Starting Firebase sign-up...');
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+
+      console.log('✅ Firebase account created:', firebaseUser.email);
+
+      // Create user profile in Firestore
+      const userDocRef = doc(db, 'users', firebaseUser.uid);
+      await setDoc(userDocRef, {
+        email: firebaseUser.email,
+        displayName: displayName,
+        profileCompleted: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      const userData = {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: displayName,
+        profile: {
+          completed: false,
+          data: null,
+        },
+      };
+
+      setUser(userData);
+      setLoading(false);
+
+      return userData;
+    } catch (error) {
+      console.error('❌ Sign-Up Error:', error);
+      setLoading(false);
+
+      let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
+
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'البريد الإلكتروني مستخدم بالفعل';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'البريد الإلكتروني غير صالح';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'كلمة المرور ضعيفة. يجب أن تكون 6 أحرف على الأقل';
+      }
+
+      throw new Error(errorMessage);
+    }
+  };
+
+  // Reset password
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      console.log('✅ Password reset email sent');
+    } catch (error) {
+      console.error('❌ Reset Password Error:', error);
+
+      let errorMessage = 'حدث خطأ أثناء إرسال رابط إعادة تعيين كلمة المرور';
+
+      if (error.code === 'auth/invalid-email') {
+        errorMessage = 'البريد الإلكتروني غير صالح';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'المستخدم غير موجود';
+      }
+
+      throw new Error(errorMessage);
     }
   };
 
@@ -97,6 +208,14 @@ export const AuthProvider = ({ children }) => {
   const updateProfileCompletion = async (completed = true, profileData = null) => {
     try {
       if (!user) return;
+
+      // Update Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, {
+        profileCompleted: completed,
+        ...(profileData && { profileData }),
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
 
       const updatedUser = {
         ...user,
@@ -116,7 +235,7 @@ export const AuthProvider = ({ children }) => {
       // Update state
       setUser(updatedUser);
 
-      console.log('✅ Profile completion updated:', completed);
+      console.log('✅ Profile completion updated in Firestore:', completed);
     } catch (error) {
       console.error('Error updating profile completion:', error);
       throw error;
@@ -127,6 +246,7 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true);
+      await firebaseSignOut(auth);
       await AsyncStorage.removeItem('currentUser');
       setUser(null);
       console.log('✅ User signed out successfully');
@@ -147,6 +267,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     initializing,
     signInWithEmail,
+    signUpWithEmail,
+    resetPassword,
     updateProfileCompletion,
     signOut,
     isSignedIn,

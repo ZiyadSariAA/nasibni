@@ -1,46 +1,55 @@
-import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Dimensions, Animated } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
+function AnimatedDot({ isActive, index }) {
+  const dotScale = useRef(new Animated.Value(isActive ? 1 : 1)).current;
+  const dotOpacity = useRef(new Animated.Value(isActive ? 1 : 0.5)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(dotScale, {
+        toValue: isActive ? 3 : 1,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+      Animated.spring(dotOpacity, {
+        toValue: isActive ? 1 : 0.5,
+        useNativeDriver: true,
+        damping: 15,
+      }),
+    ]).start();
+  }, [isActive]);
+
+  return (
+    <Animated.View
+      className={`mx-2 ${isActive ? 'bg-primary' : 'bg-border'}`}
+      style={{
+        height: 8,
+        width: 8,
+        borderRadius: 4,
+        opacity: dotOpacity,
+        transform: [{ scaleX: dotScale }],
+      }}
+    />
+  );
+}
+
 export default function WelcomeDots({ slides, currentIndex }) {
   return (
-    <View style={styles.dotsContainer}>
+    <View
+      className="absolute left-0 right-0 flex-row justify-center items-center"
+      style={{ bottom: 180 }}
+    >
       {slides.map((_, index) => (
-        <View
+        <AnimatedDot
           key={index}
-          style={[
-            styles.dot,
-            currentIndex === index && styles.activeDot,
-          ]}
+          isActive={currentIndex === index}
+          index={index}
         />
       ))}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  dotsContainer: {
-    position: 'absolute',
-    bottom: 200,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  dot: {
-    width: Math.min(width * 0.03, 14),
-    height: Math.min(width * 0.03, 14),
-    borderRadius: Math.min(width * 0.015, 7),
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: Math.min(width * 0.02, 8),
-  },
-  activeDot: {
-    backgroundColor: '#5B2C91',
-    width: Math.min(width * 0.06, 30),
-    height: Math.min(width * 0.02, 10),
-    borderRadius: Math.min(width * 0.01, 5),
-  },
-});

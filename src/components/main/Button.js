@@ -1,183 +1,89 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { colors, spacing } from '../../config/theme';
+import { TouchableOpacity, Text, ActivityIndicator, Pressable } from 'react-native';
 import { FONTS } from '../../config/fonts';
 
-const Button = ({ 
-  title, 
-  onPress, 
-  variant = 'primary', 
-  size = 'medium', 
-  disabled = false, 
+const Button = ({
+  title,
+  onPress,
+  variant = 'primary',
+  size = 'medium',
+  disabled = false,
   loading = false,
   style,
   textStyle,
-  ...props 
+  ...props
 }) => {
-  const getButtonStyle = () => {
-    const baseStyle = [styles.button, styles[size]];
+  const getButtonClasses = () => {
+    const baseClasses = 'rounded-button items-center justify-center flex-row';
     
-    switch (variant) {
-      case 'primary':
-        baseStyle.push(styles.primary);
-        break;
-      case 'secondary':
-        baseStyle.push(styles.secondary);
-        break;
-      case 'outline':
-        baseStyle.push(styles.outline);
-        break;
-      case 'ghost':
-        baseStyle.push(styles.ghost);
-        break;
-      default:
-        baseStyle.push(styles.primary);
-    }
+    // Size classes - using consistent heights
+    const sizeClasses = {
+      small: 'px-4 h-button-height-sm',
+      medium: 'px-5 h-button-height-md',
+      large: 'px-6 h-button-height-lg',
+    };
     
-    if (disabled) {
-      baseStyle.push(styles.disabled);
-    }
+    // Variant classes
+    const variantClasses = {
+      primary: 'bg-primary',
+      secondary: 'bg-accent',
+      outline: 'bg-white border border-border',
+      ghost: 'bg-transparent',
+    };
     
-    if (style) {
-      baseStyle.push(style);
-    }
+    // State classes
+    const stateClasses = disabled ? 'bg-gray-300 opacity-60' : '';
     
-    return baseStyle;
+    return `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${stateClasses}`;
   };
 
-  const getTextStyle = () => {
-    const baseTextStyle = [styles.text, styles[`${size}Text`]];
+  const getTextClasses = () => {
+    const baseClasses = 'text-center';
     
-    switch (variant) {
-      case 'primary':
-        baseTextStyle.push(styles.primaryText);
-        break;
-      case 'secondary':
-        baseTextStyle.push(styles.secondaryText);
-        break;
-      case 'outline':
-        baseTextStyle.push(styles.outlineText);
-        break;
-      case 'ghost':
-        baseTextStyle.push(styles.ghostText);
-        break;
-      default:
-        baseTextStyle.push(styles.primaryText);
-    }
+    // Size classes - using consistent font sizes
+    const sizeClasses = {
+      small: 'text-button-sm',
+      medium: 'text-button-md',
+      large: 'text-button-lg',
+    };
     
-    if (disabled) {
-      baseTextStyle.push(styles.disabledText);
-    }
+    // Variant classes
+    const variantClasses = {
+      primary: 'text-white',
+      secondary: 'text-text-primary',
+      outline: 'text-text-primary',
+      ghost: 'text-text-muted',
+    };
     
-    if (textStyle) {
-      baseTextStyle.push(textStyle);
-    }
+    // State classes
+    const stateClasses = disabled ? 'text-gray-500' : '';
     
-    return baseTextStyle;
+    return `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${stateClasses}`;
   };
 
   return (
-    <TouchableOpacity
-      style={getButtonStyle()}
+    <Pressable
+      className={getButtonClasses()}
+      style={style}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.8}
       {...props}
     >
       {loading ? (
-        <ActivityIndicator 
-          color={variant === 'primary' ? '#FFFFFF' : '#5B2C91'} 
-          size="small" 
+        <ActivityIndicator
+          color={variant === 'primary' ? '#FFFFFF' : '#4F2396'}
+          size="small"
         />
       ) : (
-        <Text style={getTextStyle()}>{title}</Text>
+        <Text
+          className={getTextClasses()}
+          style={[{ fontFamily: FONTS.semibold }, textStyle]}
+        >
+          {title}
+        </Text>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  
-  // Sizes
-  small: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    minHeight: 36,
-  },
-  medium: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    minHeight: 44,
-  },
-  large: {
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    minHeight: 52,
-  },
-  
-  // Variants
-  primary: {
-    backgroundColor: '#5B2C91',
-  },
-  secondary: {
-    backgroundColor: colors.accent,
-  },
-  outline: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-  
-  // States
-  disabled: {
-    backgroundColor: '#E0E0E0',
-    opacity: 0.6,
-  },
-  
-  // Text styles
-  text: {
-    fontFamily: FONTS.semibold,
-    textAlign: 'center',
-    includeFontPadding: true,
-  },
-  smallText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  mediumText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  largeText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  
-  // Text colors
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: colors.text.primary,
-  },
-  outlineText: {
-    color: '#333333',
-  },
-  ghostText: {
-    color: '#999999',
-  },
-  disabledText: {
-    color: '#999999',
-  },
-});
 
 export default Button;

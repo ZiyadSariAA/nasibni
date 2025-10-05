@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing } from '../../config/theme';
+import { View, TouchableOpacity } from 'react-native';
 
 const Card = ({ 
   children, 
@@ -10,45 +9,32 @@ const Card = ({
   padding = 'medium',
   ...props 
 }) => {
-  const getCardStyle = () => {
-    const baseStyle = [styles.card];
+  const getCardClasses = () => {
+    const baseClasses = 'bg-card-surface rounded-card';
     
-    switch (variant) {
-      case 'elevated':
-        baseStyle.push(styles.elevated);
-        break;
-      case 'outlined':
-        baseStyle.push(styles.outlined);
-        break;
-      case 'flat':
-        baseStyle.push(styles.flat);
-        break;
-      default:
-        baseStyle.push(styles.default);
-    }
+    // Variant classes
+    const variantClasses = {
+      default: 'shadow-sm',
+      elevated: 'shadow-lg',
+      outlined: 'border border-border',
+      flat: '',
+    };
     
-    switch (padding) {
-      case 'small':
-        baseStyle.push(styles.paddingSmall);
-        break;
-      case 'large':
-        baseStyle.push(styles.paddingLarge);
-        break;
-      default:
-        baseStyle.push(styles.paddingMedium);
-    }
+    // Padding classes
+    const paddingClasses = {
+      small: 'p-sm',
+      medium: 'p-card-padding',
+      large: 'p-lg',
+    };
     
-    if (style) {
-      baseStyle.push(style);
-    }
-    
-    return baseStyle;
+    return `${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]}`;
   };
 
   if (onPress) {
     return (
       <TouchableOpacity
-        style={getCardStyle()}
+        className={getCardClasses()}
+        style={style}
         onPress={onPress}
         activeOpacity={0.8}
         {...props}
@@ -59,60 +45,14 @@ const Card = ({
   }
 
   return (
-    <View style={getCardStyle()} {...props}>
+    <View 
+      className={getCardClasses()}
+      style={style}
+      {...props}
+    >
       {children}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.cardSurface,
-    borderRadius: 16,
-  },
-  
-  // Variants
-  default: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  elevated: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  outlined: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  flat: {
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  
-  // Padding
-  paddingSmall: {
-    padding: spacing.sm,
-  },
-  paddingMedium: {
-    padding: spacing.md,
-  },
-  paddingLarge: {
-    padding: spacing.lg,
-  },
-});
 
 export default Card;

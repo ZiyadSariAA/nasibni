@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing } from '../../config/theme';
+import { View, TextInput, Text, TouchableOpacity } from 'react-native';
 
 const Input = ({
   label,
@@ -21,51 +20,48 @@ const Input = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const getContainerStyle = () => {
-    const baseStyle = [styles.container];
+  const getContainerClasses = () => {
+    const baseClasses = 'flex-row items-center border border-border rounded-input bg-background px-4 h-input-height';
     
     if (isFocused) {
-      baseStyle.push(styles.focused);
+      return `${baseClasses} border-primary`;
     }
     
     if (error) {
-      baseStyle.push(styles.error);
+      return `${baseClasses} border-error`;
     }
     
     if (disabled) {
-      baseStyle.push(styles.disabled);
+      return `${baseClasses} bg-background-alt opacity-60`;
     }
     
-    if (style) {
-      baseStyle.push(style);
-    }
-    
-    return baseStyle;
+    return baseClasses;
   };
 
-  const getInputStyle = () => {
-    const baseStyle = [styles.input];
+  const getInputClasses = () => {
+    const baseClasses = 'flex-1 text-base text-text-primary py-2';
     
     if (multiline) {
-      baseStyle.push(styles.multiline);
+      return `${baseClasses} text-top`;
     }
     
-    if (inputStyle) {
-      baseStyle.push(inputStyle);
-    }
-    
-    return baseStyle;
+    return baseClasses;
   };
 
   return (
-    <View style={styles.wrapper}>
-      {label && <Text style={styles.label}>{label}</Text>}
+    <View className="mb-4" style={style}>
+      {label && (
+        <Text className="text-sm font-semibold text-text-primary mb-2">
+          {label}
+        </Text>
+      )}
       
-      <View style={getContainerStyle()}>
+      <View className={getContainerClasses()}>
         <TextInput
-          style={getInputStyle()}
+          className={getInputClasses()}
+          style={inputStyle}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.muted}
+          placeholderTextColor="#6B7280"
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !showPassword}
@@ -81,78 +77,23 @@ const Input = ({
         
         {secureTextEntry && (
           <TouchableOpacity
-            style={styles.eyeButton}
+            className="p-2"
             onPress={() => setShowPassword(!showPassword)}
           >
-            <Text style={styles.eyeText}>
+            <Text className="text-lg">
               {showPassword ? '👁️' : '👁️‍🗨️'}
             </Text>
           </TouchableOpacity>
         )}
       </View>
       
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && (
+        <Text className="text-sm text-error mt-1 leading-5">
+          {error}
+        </Text>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.text.primary,
-    marginBottom: spacing.sm,
-    lineHeight: 24,
-    includeFontPadding: true,
-  },
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
-    borderRadius: 12,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing.md,
-    minHeight: 48,
-  },
-  focused: {
-    borderColor: colors.primary,
-  },
-  error: {
-    borderColor: colors.error,
-  },
-  disabled: {
-    backgroundColor: colors.backgroundAlt,
-    opacity: 0.6,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text.primary,
-    paddingVertical: spacing.sm,
-    lineHeight: 24,
-    includeFontPadding: true,
-  },
-  multiline: {
-    textAlignVertical: 'top',
-    paddingTop: spacing.sm,
-  },
-  eyeButton: {
-    padding: spacing.sm,
-  },
-  eyeText: {
-    fontSize: 18,
-  },
-  errorText: {
-    fontSize: 14,
-    color: colors.error,
-    marginTop: spacing.xs,
-    lineHeight: 20,
-    includeFontPadding: true,
-  },
-});
 
 export default Input;

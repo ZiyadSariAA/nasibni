@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
+import { db } from '../config/firebase';
 
 const OnboardingContext = createContext();
 
@@ -13,30 +15,31 @@ export const useOnboarding = () => {
 };
 
 export const OnboardingProvider = ({ children }) => {
-  const { updateProfileCompletion } = useAuth();
+  const { user, updateProfileCompletion } = useAuth();
   
   const [onboardingData, setOnboardingData] = useState({
-    // Question 1: App Language
+    // Question 1: Display Name
+    displayName: null,
+
+    // Question 2: App Language
     appLanguage: null,
-    
-    // Question 2: Enable Location
+
+    // Question 3: Enable Location
     enableLocation: null,
-    
-    // Question 3: Gender
+
+    // Question 4: Gender
     gender: null,
-    
-    // Question 4: Birth Year
-    birthYear: null,
-    
+
+    // Question 4: Age
+    age: null,
+
     // Question 5: Height
     height: null,
-    
+
     // Question 6: Current Residence
-    residence: {
-      country: null,
-      city: null,
-    },
-    
+    residenceCountry: null,
+    residenceCity: null,
+
     // Question 7: Nationality
     nationality: null,
     
@@ -109,15 +112,14 @@ export const OnboardingProvider = ({ children }) => {
 
   const resetOnboardingData = () => {
     setOnboardingData({
+      displayName: null,
       appLanguage: null,
       enableLocation: null,
       gender: null,
-      birthYear: null,
+      age: null,
       height: null,
-      residence: {
-        country: null,
-        city: null,
-      },
+      residenceCountry: null,
+      residenceCity: null,
       nationality: null,
       maritalStatus: null,
       hasChildren: null,
@@ -141,36 +143,111 @@ export const OnboardingProvider = ({ children }) => {
 
   const completeOnboarding = async () => {
     try {
+      if (!user || !user.uid) {
+        console.error('User object:', user);
+        throw new Error('User not found or invalid');
+      }
+
+      if (!onboardingData) {
+        console.error('Onboarding data is undefined:', onboardingData);
+        throw new Error('Onboarding data not found');
+      }
+
       // Mark as completed
       const completedData = {
         ...onboardingData,
         isCompleted: true,
       };
-      
+
       setOnboardingData(completedData);
 
-      // Save to AsyncStorage (as fake backend)
-      const userProfileKey = `userProfile_${Date.now()}`;
-      await AsyncStorage.setItem(userProfileKey, JSON.stringify(completedData));
+      // Prepare onboarding answers to save
+      const userOnboardingData = {
+        displayName: onboardingData.displayName,
+        appLanguage: onboardingData.appLanguage,
+        enableLocation: onboardingData.enableLocation,
+        gender: onboardingData.gender,
+        age: onboardingData.age,
+        height: onboardingData.height,
+        residenceCountry: onboardingData.residenceCountry,
+        residenceCity: onboardingData.residenceCity,
+        nationality: onboardingData.nationality,
+        maritalStatus: onboardingData.maritalStatus,
+        hasChildren: onboardingData.hasChildren,
+        religion: onboardingData.religion,
+        madhhab: onboardingData.madhhab,
+        religiosityLevel: onboardingData.religiosityLevel,
+        prayerHabit: onboardingData.prayerHabit,
+        educationLevel: onboardingData.educationLevel,
+        workStatus: onboardingData.workStatus,
+        marriageType: onboardingData.marriageType,
+        marriagePlan: onboardingData.marriagePlan,
+        kidsPreference: onboardingData.kidsPreference,
+        chatLanguages: onboardingData.chatLanguages,
+        smoking: onboardingData.smoking,
+        photos: onboardingData.photos,
+        aboutMe: onboardingData.aboutMe,
+        idealPartner: onboardingData.idealPartner,
+        completedAt: new Date().toISOString()
+      };
 
-      // Also save to a list of all completed profiles
-      const existingProfiles = await AsyncStorage.getItem('completedProfiles');
-      const profilesList = existingProfiles ? JSON.parse(existingProfiles) : [];
-      profilesList.push({
-        id: userProfileKey,
-        completedAt: new Date().toISOString(),
-        data: completedData,
+      // Save to Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, {
+        profileData: userOnboardingData,
+        profileCompleted: true,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true });
+
+      console.log('✅ Onboarding data saved to Firestore for user:', user.uid);
+
+      // Create public profile for matching
+      const publicProfileRef = doc(db, 'publicProfiles', user.uid);
+
+      // Get user name from onboarding data
+      const displayName = onboardingData?.displayName || user?.email?.split('@')[0] || 'User';
+
+      console.log('Creating publicProfile with displayName:', displayName);
+
+      await setDoc(publicProfileRef, {
+        name: displayName,
+        displayName: displayName,
+        birthYear: onboardingData.age ? new Date().getFullYear() - onboardingData.age : null,
+        age: onboardingData.age || null,
+        height: onboardingData.height || null,
+        nationality: onboardingData.nationality?.countryName || onboardingData.nationality || null,
+        location: onboardingData.residenceCountry || null,
+        country: onboardingData.residenceCountry?.countryName || '',
+        firstPhoto: onboardingData.photos && onboardingData.photos.length > 0 ? onboardingData.photos[0] : null,
+        photos: onboardingData.photos || [],
+        about: onboardingData.aboutMe || '',
+        description: onboardingData.aboutMe || '',
+        gender: onboardingData.gender || null,
+        createdAt: new Date().toISOString(),
       });
-      await AsyncStorage.setItem('completedProfiles', JSON.stringify(profilesList));
 
-      console.log('✅ Onboarding data saved to fake database');
-      console.log('Profile Data:', completedData);
+      console.log('✅ Public profile created for user:', user.uid);
+
+      // Also save to AsyncStorage as backup
+      const existingData = await AsyncStorage.getItem('onboardingData');
+      const data = existingData ? JSON.parse(existingData) : { responses: [] };
+
+      // Remove existing response for this user if any
+      data.responses = data.responses.filter(r => r.userId !== user.uid);
+
+      // Add new response
+      data.responses.push({
+        userId: user.uid,
+        answers: userOnboardingData
+      });
+
+      await AsyncStorage.setItem('onboardingData', JSON.stringify(data));
 
       // Update auth context to mark profile as completed
-      await updateProfileCompletion(true, completedData);
+      await updateProfileCompletion(true, userOnboardingData);
 
       console.log('✅ Onboarding completed successfully!');
-      
+
       return true;
     } catch (error) {
       console.error('Error completing onboarding:', error);

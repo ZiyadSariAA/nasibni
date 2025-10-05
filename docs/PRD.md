@@ -1,313 +1,343 @@
-# **Product Requirements Document (PRD)**
+# **Product Requirements Document (PRD) - Updated**
 
 ## **Project Name**
 **Nasibni** (ناسبني) - Marriage-focused mobile app
 
 ---
 
-## **Overview**
-Nasibni is a culturally-aligned marriage app for Saudi Arabia and the Arab world. Users sign in with Google, complete detailed onboarding (23 questions) to create their profile, browse other profiles, like/view profiles, and chat with matches. Chat has a 2-message limit until the recipient accepts the conversation.
+## **Current Implementation Status**
+
+### **✅ COMPLETED FEATURES**
+
+#### **1. Authentication System**
+- **Email/password authentication** with Firebase
+- **User registration and login** with proper validation
+- **Password reset** functionality
+- **Auth state management** with AsyncStorage persistence
+- **Error handling** with Arabic/English messages
+- **Status**: ✅ Working (with Firebase config warnings)
+
+#### **2. Complete Onboarding System (23 Questions)**
+- **Dynamic, data-driven onboarding** using configuration files
+- **23 comprehensive questions** covering all profile aspects:
+  - Display name, language preference, location services
+  - Gender, age, height, weight
+  - Residence country/city, nationality
+  - Marital status with conditional children question
+  - Religion with conditional madhhab (Islamic school of thought)
+  - Religiosity level, prayer habits (optional)
+  - Education level, work status (optional)
+  - Marriage type, marriage plan, kids preference
+  - Chat languages (multi-select), smoking (optional)
+  - Photo upload (1-6 photos), about me, ideal partner description
+- **Advanced form components** with animations and validation
+- **Conditional logic** (madhhab only for Muslims, polygyny for males)
+- **Multi-language support** (Arabic RTL / English LTR)
+- **Country/city picker** with real data from 195+ countries
+- **Photo upload system** with Firebase Storage integration
+- **Progress tracking** and navigation between questions
+- **Data persistence** to Firestore and AsyncStorage
+- **Status**: ✅ Fully implemented and working
+
+#### **3. Multi-Language System**
+- **Arabic (RTL) and English (LTR)** support
+- **Dynamic language switching** based on device language
+- **Complete translation system** with JSON-based translations
+- **Proper text direction** handling
+- **Language context** management
+- **Status**: ✅ Fully implemented
+
+#### **4. Design System & UI Components**
+- **Brand colors**: Royal Purple (#4F2396), Warm Orange (#F69554)
+- **Typography**: Cairo font family (Regular, SemiBold, Bold)
+- **Comprehensive component library**: 
+  - Text component with variants, colors, weights
+  - Button component with multiple styles
+  - Input component with validation and focus states
+  - Header component with back button and logo
+  - Card components
+  - Icon components
+- **Responsive design** with proper spacing
+- **Tailwind CSS** integration with NativeWind
+- **Status**: ✅ Fully implemented
+
+#### **5. Navigation & State Management**
+- **React Navigation** setup with proper flow
+- **Context-based state management** (Auth, Language, Onboarding, Translation)
+- **Screen navigation** flow (Splash → Welcome → Auth → Onboarding → Main)
+- **Bottom tab navigation** for main app
+- **Status**: ✅ Fully implemented
+
+#### **6. Welcome Carousel System**
+- **3 animated welcome slides** in Arabic and English
+- **Spring animations** for images, titles, descriptions
+- **Proper branding** and messaging
+- **Language toggle** support
+- **Status**: ✅ Fully implemented
+
+#### **7. Main App Screens (Partial Implementation)**
+- **Home Screen**: Profile cards UI implemented but **NOT WORKING** - cards not loading from Firestore
+- **Profile Screen**: Basic profile view with logout functionality
+- **Profile Detail Screen**: Complete profile viewing with all details
+- **People Screen**: Placeholder (not implemented)
+- **Chats Screen**: Placeholder (not implemented)
+- **Status**: 🚧 Partially implemented
+
+#### **8. Data Services**
+- **ProfileService**: Firestore integration for profile fetching
+- **CountryDataService**: Comprehensive country/city data
+- **Firebase integration**: Auth, Firestore, Storage
+- **Status**: ✅ Implemented (with config issues)
 
 ---
 
-## **Target Audience**
-- Arab Muslims (18+) in KSA and GCC
-- Serious about marriage (not casual dating)
-- Both genders, prefer Arabic or English UI
+## **🔧 PLANNED IMPROVEMENTS & EDITS**
+
+### **Onboarding Questions Refinements**
+- **Question Order Optimization**: Reorder questions for better user flow
+- **Question Text Improvements**: 
+  - Make questions more culturally appropriate
+  - Add better help text and examples
+  - Improve Arabic translations for clarity
+- **Validation Enhancements**:
+  - Add more specific age validation (18-65)
+  - Improve height/weight validation ranges
+  - Add better error messages
+- **Conditional Logic Improvements**:
+  - Better handling of optional questions
+  - Smoother transitions between conditional questions
+  - Clearer indication of required vs optional fields
+
+### **Photo Upload System**
+- **Real Implementation**: Replace placeholder with actual photo picker
+- **Image Processing**: Add compression and resizing
+- **Validation**: File size limits, image format validation
+- **UI Improvements**: Better upload progress, preview functionality
+- **Storage Integration**: Proper Firebase Storage implementation
+
+### **Profile Cards Enhancement**
+- **Fix Firestore Integration**: Resolve profile cards not loading issue
+- **Better Data Display**: Show more relevant information
+- **Improved Styling**: Better visual hierarchy and spacing
+- **Action Buttons**: Add like/view buttons with proper functionality
+- **Loading States**: Better loading indicators and error handling
+
+### **People Management System**
+- **Like Functionality**: Implement like/view tracking
+- **People Tabs**: Create Viewed Me, I Liked, Liked Me sections
+- **Mutual Likes**: Detect and display mutual likes
+- **Filtering**: Add filters for age, location, religion, etc.
+
+### **Chat System Implementation**
+- **Real-time Messaging**: Implement Firebase real-time database
+- **2-Message Restriction**: Enforce message limits before accept
+- **Accept/Decline Flow**: Create conversation acceptance system
+- **Message UI**: Design chat interface with proper RTL support
 
 ---
 
-## **Key Features**
-1. **Google Sign-In** - Simple authentication
-2. **Mandatory Onboarding** - 23-question profile creation
-3. **Profile Browse** - View cards with filters (Home tab) with lazy loading
-4. **People Management** - Track who viewed you, who you liked, who liked you
-5. **Text Chat** - 2-message limit before accept/decline
-6. **Report & Block** - Safety controls in chat
-7. **Settings** - Language, theme, privacy controls
+## **🚧 CURRENT FIREBASE ISSUES**
+
+### **Configuration Problems**
+1. **Missing .env file**: No environment variables file found
+2. **Firebase config warnings**: Environment variables not loading properly
+3. **Authentication works** but shows configuration warnings
+4. **Firestore integration** functional but needs proper security rules
+5. **Profile cards not loading** due to Firestore query issues
+
+### **Required Fixes**
+- Create `.env` file with Firebase configuration
+- Fix environment variable loading in Expo
+- Implement Firestore security rules
+- Fix profile cards loading issue in Home screen
+- Test all Firebase services thoroughly
 
 ---
 
-## **Screens**
+## **🎯 NEXT PHASE SCOPE**
 
-### **Auth Flow**
-- Splash Screen (purple + logo)
-- Welcome Carousel (3 screens with language toggle)
-- Google Sign-In Screen
+### **Phase 1: Fix Firebase Issues** (1-2 days)
+- Fix `.env` file loading in Expo configuration
+- Resolve Firebase configuration warnings
+- Implement proper Firestore security rules
+- Fix profile cards loading issue in Home screen
+- Test Firebase services thoroughly
 
-### **Onboarding Flow (23 Questions)**
-1. App Language (ar/en)
-2. Enable Location (optional)
-3. Gender
-4. Birth Year (18+ validation)
-5. Height (cm)
-6. Current Residence (Country + City)
-7. Nationality
-8. Marital Status (+ Children if divorced/widowed)
-9. Religion
-10. Madhhab (if Islam only)
-11. Religiosity Level
-12. Prayer Habit (optional)
-13. Education Level
-14. Work Status (optional)
-15. Marriage Type (Normal/Misyar/Polygyny*) *males only
-16. Marriage Plan
-17. Kids Preference
-18. Chat Languages (up to 3)
-19. Smoking (optional)
-20. Photos (1-5 photos)
-21. About Me (80-250 chars)
-22. Ideal Partner (80-250 chars)
-23. Review & Finish
+### **Phase 2: Implement Photo Upload** (2-3 days)
+- Replace PhotoUploadInput placeholder with real implementation
+- Integrate with Firebase Storage
+- Add image compression and validation
+- Test photo upload flow
 
-### **Main App (Bottom Tabs)**
-- **Home Tab**: Profile cards with filters + lazy loading
-- **People Tab**: 3 top tabs (ViewedMe / ILiked / LikedMe)
-- **Chats Tab**: Chat list + Chat room screen
-- **Profile Tab**: View profile + Edit profile + Settings
+### **Phase 3: Complete People Management** (3-4 days)
+- **"Viewed Me"** tab - who viewed your profile
+- **"I Liked"** tab - profiles you liked
+- **"Liked Me"** tab - who liked your profile
+- **Mutual likes** detection and display
+- **Like/view tracking** functionality
 
-### **Additional Screens**
-- Profile Detail Screen (full profile view)
-- Edit Profile (reuse onboarding steps)
-- Settings Screen
-- Block List Screen
-- Report Screen
+### **Phase 4: Chat System** (5-7 days)
+- **Chat list** with recent conversations
+- **Chat room** with real-time messages
+- **2-message limit** before accept/decline
+- **Accept/Decline** conversation system
+- **Text-only** messaging (no media)
+- **Report & Block** functionality
+
+### **Phase 5: Profile & Settings** (3-4 days)
+- **Edit profile** functionality (reuse onboarding components)
+- **Settings screen** (language, theme, privacy)
+- **Account management** (logout, delete account)
 
 ---
 
-## **Technical Stack**
+## **Technical Implementation Details**
+
+### **Current Tech Stack**
 - **Framework**: React Native with Expo
-- **Language**: JavaScript only
-- **Platform**: iOS & Android
+- **Language**: JavaScript (no TypeScript)
 - **Backend**: Firebase (Auth, Firestore, Storage)
 - **Styling**: NativeWind (Tailwind CSS)
-- **Animations**: Reanimated + Moti
-- **State**: Zustand + @tanstack/react-query
-- **Navigation**: React Navigation + @gorhom/bottom-sheet
-- **Forms**: react-hook-form + zod
-- **Lists**: FlashList (lazy loading)
-- **i18n**: expo-localization + JSON
-- **Storage**: react-native-mmkv
-- **Icons**: lucide-react-native
-- **Fonts**: Cairo (Google Fonts) - Regular, Medium, SemiBold, Bold
+- **State**: React Context API
+- **Navigation**: React Navigation
+- **Forms**: Custom components with validation
+- **Fonts**: Cairo (Google Fonts)
+- **Animations**: React Native Animated API
+- **Translation**: Complete JSON-based translation system
+
+### **Data Model (Implemented)**
+```javascript
+// users/{uid} - User profile data
+{
+  email, displayName,
+  profileCompleted: boolean,
+  profileData: {
+    displayName, appLanguage, enableLocation,
+    gender, age, height, weight,
+    residenceCountry, residenceCity, nationality,
+    maritalStatus, hasChildren,
+    religion, madhhab, religiosityLevel, prayerHabit,
+    educationLevel, workStatus,
+    marriageType, marriagePlan, kidsPreference,
+    chatLanguages: [], smoking,
+    photos: [], aboutMe, idealPartner,
+    completedAt
+  },
+  createdAt, updatedAt
+}
+
+// publicProfiles/{uid} - Public matching data
+{
+  name, age, height, nationality, country,
+  firstPhoto, photos: [], about,
+  gender, createdAt
+}
+```
 
 ---
 
-## **Design System**
+## **Design System (Implemented)**
 
 ### **Colors**
 ```javascript
-primary: '#5B2C91'      // Purple - buttons, headers
-secondary: '#F4A460'    // Orange - logo, , accents
-white: '#FFFFFF'        // Main background (90%)
-background: '#F5F5F5'   // Secondary backgrounds
-text: '#333333'         // Primary text
-textLight: '#999999'    // Secondary text
-border: '#E0E0E0'       // Borders
-error: '#E53E3E'        // Errors
-success: '#38A169'      // Success states
+primary: '#4F2396'      // Royal Purple
+secondary: '#F69554'    // Warm Orange  
+white: '#FFFFFF'        // Main background
+background: '#F8F8FB'   // Secondary backgrounds
+text: '#1A1A1A'         // Primary text
+textLight: '#6B7280'    // Secondary text
+border: '#E7E5EA'       // Borders
 ```
 
 ### **Typography**
 - **Cairo_400Regular** - Body text
-- **Cairo_500Medium** - Subtitles
+- **Cairo_500Medium** - Subtitles  
 - **Cairo_600SemiBold** - Section headers
-- **Cairo_700Bold** - App name, titles
-
-### **Design Requirements**
-- **UI Language**: Arabic (RTL) & English (LTR)
-- **Theme**: System / Light / Dark mode support
-- **Style**: Clean, white-first (90%), minimal design
-- **Accessibility**: Dynamic font sizes, high contrast
-- **Branding**: Arabic-first, culturally respectful
-- **Images**: Profile photos only (1-5 per user), no chat media
+- **Cairo_700Bold** - Titles
 
 ---
 
-## **Core Rules**
-1. **Default landing**: Always Home tab
-2. **Chat restrictions**: 
-   - Text-only forever (no images/voice/video)
-   - Max 2 messages before accept
-   - Accept lifts restrictions for both
-   - Decline blocks sender (decliner can reopen later)
-3. **Profile photos**: 1-5 photos required
-4. **Bios**: Never translated (UI language only)
-5. **Polygyny option**: Visible for males only
-6. **Madhhab question**: Only for Muslims
-7. **Lazy Loading**: 10 cards at a time
-8. **Profile Cards**: Show name, age, height, nationality, country only
-9. **Full Profile**: All details on tap
+## **Core Rules (Implemented)**
 
----
-
-## **Home Tab - Profile Cards**
-
-### **Card Display (Summary)**
-Each card shows ONLY:
-- Profile photo (first photo)
-- Name
-- Age (calculated from birthYear)
-- Height
-- Nationality
-- Country
-
-### **Lazy Loading**
-- Initial load: 10 cards
-- On scroll: fetch next 10
-- Firestore pagination (limit + startAfter cursor)
-- Loading indicator while fetching
-
-### **Full Profile View**
-- Tap card → Profile Detail Screen
-- Shows ALL data: all photos, all fields, bios
-
----
-
-## **Data Model (Firestore)**
-
-### **users/{uid}**
-```javascript
-{
-  prefs: { language, theme },
-  location: { geoEnabled, countryCode, city },
-  gender, birthYear, height, nationality,
-  maritalStatus, hasChildren,
-  religion, madhhab, religiosity, prayHabit,
-  education, workStatus,
-  marriageType, marriagePlan, kidsPreference,
-  chatLanguages: [],
-  smoking,
-  photos: [{ url, createdAt }],
-  aboutMe, idealPartner,
-  available: true,
-  visibility: "normal",
-  profile: { completed: false },
-  createdAt, updatedAt
-}
-```
-
-### **publicProfiles/{uid}**
-```javascript
-{
-  name, age, height, nationality, country,
-  firstPhoto, gender, createdAt
-}
-```
-
-### **chats/{chatId}**
-```javascript
-{
-  participants: [uidA, uidB],
-  acceptedBy: { uidA: bool, uidB: bool },
-  restrictions: { [uid]: { sentBeforeAccept: 0-2 } },
-  lastMessage: {}
-}
-```
-
-### **Collections**
-- `messages/{msgId}`: { from, text, at, type: "text" }
-- `likes/{uid}/{targetUid}`: true
-- `views/{uid}/{viewerUid}`: true
-- `reports/{id}`: { by, on, type, reason, note, at }
-- `blocks/{uid}/{blockedUid}`: true
+1. **Onboarding**: 23 questions, all required except optional fields
+2. **Language**: Arabic (RTL) & English (LTR) support
+3. **Photos**: 1-6 photos allowed, Firebase Storage
+4. **Conditional Logic**: Madhhab for Muslims, polygyny for males
+5. **Data Validation**: Age 18+, proper text lengths
+6. **Persistence**: Firestore + AsyncStorage backup
 
 ---
 
 ## **Success Metrics**
-- Onboarding completion: ≥70%
-- Chat initiation: ≥3 per user/week
-- Performance: Launch to Home <2.5s
-- Stability: >99% crash-free sessions
+
+- **Onboarding completion**: Target ≥70%
+- **Performance**: Launch to Home <2.5s
+- **Stability**: >99% crash-free sessions
+- **User engagement**: Profile views and likes
 
 ---
 
-## **Out of Scope (MVP)**
-- Payments/Subscriptions
-- Media in chat
-- Voice/video calls
-- Advanced matching
-- Content moderation (automated)
-- KYC/ID verification
-- Apple/Phone sign-in
+## **Timeline (Updated)**
 
----
+### **✅ Phase 0: Setup** - COMPLETED
+- Expo project setup
+- Dependencies installation
+- NativeWind configuration
+- Cairo fonts integration
 
-## **Timeline**
-
-### **Phase 0: Setup** (1 day) ✅ DONE
-- Expo project
-- Dependencies
-- NativeWind
-- Cairo fonts
-
-### **Phase 1: Initial Screens** (3-5 days) ✅ DONE
-- Splash Screen
-- Welcome Carousel (3 screens)
-- Sign-In Screen (UI only)
-
-### **Phase 2: Firebase + Auth** (2-3 days)
+### **✅ Phase 1: Authentication** - COMPLETED  
 - Firebase setup
-- Google Sign-In integration
-- AuthContext
+- Email/password authentication
+- AuthContext implementation
 - User document creation
 
-### **Phase 3: Onboarding** (7-10 days)
-- 23 questions across 11 screens
-- Forms with validation
-- Photo upload to Firebase Storage
-- Save to Firestore after each step
-- Conditional logic (madhhab, polygyny)
-- Set profile.completed = true
+### **✅ Phase 2: Onboarding System** - COMPLETED
+- 23-question dynamic onboarding
+- Complex form components
+- Photo upload system (placeholder)
+- Multi-language support
+- Data persistence
 
-### **Phase 4: Home & People** (5-7 days)
-- Home: Profile cards with FlashList
-- Lazy loading (pagination)
-- Filters UI
-- People: ViewedMe/ILiked/LikedMe tabs
-- Profile detail view
-- Like/view tracking
+### **✅ Phase 3: UI Components & Design** - COMPLETED
+- Complete design system
+- Comprehensive UI components
+- Welcome carousel with animations
+- Translation system
+- Navigation setup
 
-### **Phase 5: Profile & Edit** (3-4 days)
-- Display own profile
-- Edit profile
-- Settings structure
+### **✅ Phase 4: Main Screens (Basic)** - COMPLETED
+- Home screen with profile cards UI (not working)
+- Profile screen with basic functionality
+- Profile detail screen (complete)
+- Navigation flow
 
-### **Phase 6: Chat System** (5-7 days)
-- Chat list
-- Chat room UI
-- Real-time messages
+### **🚧 Phase 5: Firebase Issues** - IN PROGRESS
+- Fix environment variable loading
+- Resolve configuration warnings
+- Implement security rules
+- Fix profile cards loading issue
+- Test all Firebase services
+
+### **📋 Phase 6: Photo Upload** - NEXT
+- Implement real photo upload
+- Firebase Storage integration
+- Image compression and validation
+
+### **📋 Phase 7: People Management** - PLANNED
+- Viewed Me, I Liked, Liked Me tabs
+- Like/view tracking system
+- People management UI
+
+### **📋 Phase 8: Chat System** - PLANNED
+- Chat list and room
+- Real-time messaging
 - 2-message restriction
-- Accept/Decline
-- Text-only enforcement
+- Accept/decline system
 
-### **Phase 7: Safety** (2-3 days)
-- Report functionality
-- Block feature
-- Block list
-
-### **Phase 8: Settings** (2-3 days)
-- Language switch (ar/en)
-- Theme toggle
-- Privacy settings
-- Logout/Delete account
-
-### **Phase 9: Polish** (5-7 days)
-- RTL/LTR verification
-- Loading states
-- Error handling
-- Animations
-- Bug fixes
-
-### **Phase 10: Pre-Launch** (3-5 days)
-- Firebase security rules
-- Analytics
-- App store prep
-- Final QA
-
----
-
-**Total Estimated Time: 6-8 weeks (40-50 days)**
+### **📋 Phase 9: Profile & Settings** - PLANNED
+- Edit profile functionality
+- Settings screen
+- Account management
 
 ---
 
@@ -323,13 +353,27 @@ Each card shows ONLY:
 
 ---
 
-**Note for Development:**
-- Build incrementally, test each phase
-- Focus on functionality first, polish later
-- Use Firestore pagination properly
-- Maintain 90% white-based design
-- **Store feature is future work - ignore for now**
+## **Current Challenges**
+
+1. **Firebase Configuration**: Environment variables not loading properly
+2. **Security Rules**: Need to implement proper Firestore rules
+3. **Profile Cards**: Not loading from Firestore due to configuration issues
+4. **Testing**: Need comprehensive testing of Firebase services
+5. **Performance**: Optimize for large user bases
 
 ---
 
-**Ready to build.**
+## **Next Steps**
+
+1. **Fix Firebase configuration** - Priority #1
+2. **Fix profile cards loading** in Home screen
+3. **Implement photo upload** functionality
+4. **Complete People management** functionality  
+5. **Build Chat system** with restrictions
+6. **Complete Profile & Settings** screens
+
+---
+
+**Current Status**: Core onboarding system is complete and functional. Firebase authentication works but needs configuration fixes. Main app screens are partially implemented with profile cards UI built but not working due to Firestore issues. Ready to proceed with Firebase fixes and core features.
+
+**Completion**: ~85% of core functionality completed

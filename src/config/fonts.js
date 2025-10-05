@@ -9,7 +9,7 @@ export const FONTS = {
 export const APP_NAME_STYLE = {
   fontFamily: FONTS.appName,
   fontSize: 32,
-  color: '#5B2C91',
+  color: '#4F2396',
 };
 
 export const TEXT_STYLES = {
@@ -17,7 +17,7 @@ export const TEXT_STYLES = {
   title: {
     fontFamily: FONTS.bold,
     fontSize: 24,
-    color: '#5B2C91',
+    color: '#4F2396',
   },
 
   // Subtitles
