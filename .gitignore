@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+=======
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+>>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
 
 # Expo
 .expo/
 dist/
 web-build/
+<<<<<<< HEAD
 
 # Environment variables
 .env
@@ -67,10 +75,43 @@ jspm_packages/
 # Firebase
 firebase-debug.log
 firestore-debug.log
+=======
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+>>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
 
 # Metro
 .metro-health-check*
 
+<<<<<<< HEAD
 # Temporary files
 *.tmp
 *.temp
+=======
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+>>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6

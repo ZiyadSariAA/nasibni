@@ -1,9 +1,14 @@
 {
+<<<<<<< HEAD
   "name": "nasibni",
+=======
+  "name": "nasabni",
+>>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "expo start",
+<<<<<<< HEAD
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
@@ -36,4 +41,17 @@
     "babel-preset-expo": "^54.0.3",
     "prettier-plugin-tailwindcss": "^0.5.14"
   }
+=======
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~54.0.10",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.4"
+  },
+  "private": true
+>>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import './global.css';
 import { StatusBar } from 'expo-status-bar';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -45,3 +46,25 @@ export default function App() {
     </AuthProvider>
   );
 }
+=======
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Text>Open up App.js to start working on your app!</Text>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+>>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
