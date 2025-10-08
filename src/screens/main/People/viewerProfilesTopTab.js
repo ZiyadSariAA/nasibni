@@ -1,28 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, RefreshControl, TouchableOpacity, Platform } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { View, FlatList, RefreshControl, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { CompactProfileCard, Text, SmartStatusBar, LoadingState, EmptyState, ErrorState } from '../../../components/main';
-import LikeService from '../../../services/LikeService';
+import { CompactProfileCard, LoadingState, EmptyState, ErrorState } from '../../../components/main';
 
-export default function PeopleScreen() {
+/**
+ * Tab: "Who Viewed You" (EF 4'G/ EDAC)
+ * Shows users who viewed the current user's profile
+ */
+export default function ViewerProfilesTopTab() {
   const navigation = useNavigation();
   const { user } = useAuth();
   const { isArabic } = useLanguage();
 
-  // Tab state (0: Who Liked Me, 1: Who I Liked, 2: Profile Views)
-  const [activeTab, setActiveTab] = useState(0);
-
-  // Data for each tab
-  const [whoLikedMe, setWhoLikedMe] = useState([]);
-  const [whoILiked, setWhoILiked] = useState([]);
-  const [profileViews, setProfileViews] = useState([]);
-
-  // Loading states
+  const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -34,7 +28,7 @@ export default function PeopleScreen() {
     isMountedRef.current = true;
 
     if (user?.uid) {
-      loadAllData();
+      loadProfiles();
     }
 
     return () => {
@@ -42,8 +36,7 @@ export default function PeopleScreen() {
     };
   }, [user?.uid]);
 
-  // Load all tab data
-  const loadAllData = async () => {
+  const loadProfiles = async () => {
     try {
       setError(null);
 
@@ -51,52 +44,21 @@ export default function PeopleScreen() {
         throw new Error('User not authenticated');
       }
 
-      console.log('📥 Loading People screen data...');
+      console.log('=� Loading profile viewers...');
 
-      // Load all tabs in parallel
-      const [likedMeResult, iLikedResult, viewersResult] = await Promise.all([
-        LikeService.getUsersWhoLikedMe(user.uid, 50),
-        LikeService.getUsersILiked(user.uid, 50),
-        loadProfileViewers(user.uid)
-      ]);
-
-      if (!isMountedRef.current) return;
-
-      setWhoLikedMe(likedMeResult);
-      setWhoILiked(iLikedResult);
-      setProfileViews(viewersResult);
-
-      console.log('✅ People data loaded:', {
-        whoLikedMe: likedMeResult.length,
-        whoILiked: iLikedResult.length,
-        profileViews: viewersResult.length
-      });
-    } catch (err) {
-      if (!isMountedRef.current) return;
-      console.error('Error loading people data:', err);
-      setError(err.message);
-    } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    }
-  };
-
-  // Load profile viewers
-  const loadProfileViewers = async (userId) => {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
 
       if (!userDoc.exists()) {
-        return [];
+        setProfiles([]);
+        return;
       }
 
       const userData = userDoc.data();
       const viewedByIds = userData.viewedBy || [];
 
       if (viewedByIds.length === 0) {
-        return [];
+        setProfiles([]);
+        return;
       }
 
       // Get blocked users
@@ -205,42 +167,52 @@ export default function PeopleScreen() {
         }
       }
 
-      return viewerProfiles;
-    } catch (error) {
-      console.error('Error loading viewers:', error);
-      return [];
+      if (!isMountedRef.current) return;
+
+      setProfiles(viewerProfiles);
+
+      console.log(' Loaded profile viewers:', viewerProfiles.length);
+    } catch (err) {
+      if (!isMountedRef.current) return;
+      console.error('Error loading profile viewers:', err);
+      setError(err.message);
+    } finally {
+      if (isMountedRef.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   };
 
   // Pull to refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadAllData();
+    await loadProfiles();
   }, [user?.uid]);
 
   // Navigate to profile detail
   const handleProfilePress = useCallback((item) => {
-    console.log('🟢 PeopleScreen: handleProfilePress called');
+    console.log('=� ViewerProfilesTopTab: handleProfilePress called');
     console.log('  Item:', item?.displayName);
     console.log('  Item ID:', item?.id);
 
     if (!item?.id) {
-      console.error('❌ Item ID is missing!');
+      console.error('L Item ID is missing!');
       return;
     }
 
-    console.log('✅ Navigating to DetailedUser...');
+    console.log(' Navigating to DetailedUser...');
     // Use parent navigation to access Stack screens from Tab screen
     const parentNav = navigation.getParent();
     if (parentNav) {
-      console.log('✅ Using parent navigator');
+      console.log(' Using parent navigator');
       parentNav.navigate('DetailedUser', {
         profileId: item.id,
         profileData: item // Pass full profile data to avoid re-fetching
       });
     } else {
       // Fallback to direct navigation
-      console.log('⚠️ No parent navigator, using direct navigation');
+      console.log('� No parent navigator, using direct navigation');
       navigation.navigate('DetailedUser', {
         profileId: item.id,
         profileData: item
@@ -265,194 +237,42 @@ export default function PeopleScreen() {
     );
   }, [handleProfilePress, handleChatPress]);
 
-  // Get current tab data
-  const getCurrentTabData = () => {
-    switch (activeTab) {
-      case 0:
-        return whoLikedMe;
-      case 1:
-        return whoILiked;
-      case 2:
-        return profileViews;
-      default:
-        return [];
-    }
-  };
-
-  // Get empty state config
-  const getEmptyStateConfig = () => {
-    switch (activeTab) {
-      case 0:
-        return {
-          icon: '💔',
-          title: isArabic ? 'لا يوجد إعجابات' : 'No Likes Yet',
-          description: isArabic
-            ? 'لم يعجب أحد بملفك الشخصي بعد'
-            : 'No one has liked your profile yet'
-        };
-      case 1:
-        return {
-          icon: '💙',
-          title: isArabic ? 'لم تعجب بأحد بعد' : 'No Likes Yet',
-          description: isArabic
-            ? 'لم تعجب بأي ملف شخصي بعد'
-            : "You haven't liked any profiles yet"
-        };
-      case 2:
-        return {
-          icon: '👀',
-          title: isArabic ? 'لا توجد مشاهدات' : 'No Profile Views',
-          description: isArabic
-            ? 'لم يشاهد أحد ملفك الشخصي بعد'
-            : 'No one has viewed your profile yet'
-        };
-      default:
-        return {
-          icon: '📋',
-          title: isArabic ? 'لا توجد بيانات' : 'No Data',
-          description: ''
-        };
-    }
-  };
-
   const renderEmpty = useCallback(() => {
     if (loading) return null;
 
-    const config = getEmptyStateConfig();
     return (
       <EmptyState
-        icon={config.icon}
-        title={config.title}
-        description={config.description}
+        icon="=@"
+        title={isArabic ? 'D' *H,/ E4'G/'*' : 'No Profile Views'}
+        description={isArabic
+          ? 'DE J4'G/ #-/ EDAC 'D4.5J (9/'
+          : 'No one has viewed your profile yet'}
       />
     );
-  }, [loading, activeTab, isArabic]);
+  }, [loading, isArabic]);
 
-  // Tab labels
-  const tabs = [
-    {
-      id: 0,
-      labelEn: 'Liked You',
-      labelAr: 'أعجبوا بك',
-      count: whoLikedMe.length
-    },
-    {
-      id: 1,
-      labelEn: 'You Liked',
-      labelAr: 'أعجبت بهم',
-      count: whoILiked.length
-    },
-    {
-      id: 2,
-      labelEn: 'Viewed You',
-      labelAr: 'شاهدوا ملفك',
-      count: profileViews.length
-    }
-  ];
-
-  const currentTabData = getCurrentTabData();
-
-  if (loading && currentTabData.length === 0) {
+  if (loading && profiles.length === 0) {
     return (
       <LoadingState
-        message={isArabic ? 'جاري التحميل...' : 'Loading...'}
+        message={isArabic ? ','1J 'D*-EJD...' : 'Loading...'}
       />
     );
   }
 
-  if (error && currentTabData.length === 0) {
+  if (error && profiles.length === 0) {
     return (
       <ErrorState
-        title={isArabic ? 'حدث خطأ' : 'Error'}
+        title={isArabic ? '-/+ .7#' : 'Error'}
         message={error}
-        onRetry={loadAllData}
+        onRetry={loadProfiles}
       />
     );
   }
 
   return (
     <View className="flex-1 bg-gray-50">
-      <SmartStatusBar backgroundColor="#F9FAFB" />
-
-      {/* Safe Area Top */}
-      <View className="h-12 bg-gray-50" />
-
-      {/* Header with Blur */}
-      <View className="relative">
-        {Platform.OS === 'ios' && (
-          <BlurView
-            intensity={60}
-            tint="light"
-            className="absolute top-0 left-0 bottom-0 right-0"
-          />
-        )}
-        <View className={`${Platform.OS === 'ios' ? 'bg-transparent' : 'bg-gray-50'} px-4 py-3`}>
-          <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-row items-center gap-3">
-              <Text variant="h4" weight="bold" className="text-text-primary">
-                {isArabic ? 'الأشخاص' : 'People'}
-              </Text>
-              <View className="bg-primary/10 px-2 py-1 rounded-full">
-                <Text variant="caption" weight="semibold" className="text-primary">
-                  {currentTabData.length}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Custom Tab Switcher */}
-          <View className="flex-row gap-2">
-            {tabs.map((tab) => (
-              <TouchableOpacity
-                key={tab.id}
-                onPress={() => setActiveTab(tab.id)}
-                className={`flex-1 px-3 py-2 rounded-full ${
-                  activeTab === tab.id
-                    ? 'bg-primary'
-                    : 'bg-white border border-gray-200'
-                }`}
-                activeOpacity={0.7}
-              >
-                <View className="flex-row items-center justify-center gap-1">
-                  <Text
-                    variant="caption"
-                    weight="semibold"
-                    style={{
-                      color: activeTab === tab.id ? '#FFFFFF' : '#6B7280',
-                      fontSize: 12
-                    }}
-                  >
-                    {isArabic ? tab.labelAr : tab.labelEn}
-                  </Text>
-                  {tab.count > 0 && (
-                    <View
-                      className={`px-1.5 py-0.5 rounded-full min-w-[18px] ${
-                        activeTab === tab.id ? 'bg-white/20' : 'bg-gray-100'
-                      }`}
-                    >
-                      <Text
-                        variant="small"
-                        weight="semibold"
-                        style={{
-                          color: activeTab === tab.id ? '#FFFFFF' : '#6B7280',
-                          fontSize: 10,
-                          textAlign: 'center'
-                        }}
-                      >
-                        {tab.count}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </View>
-
-      {/* Profile Cards List */}
       <FlatList
-        data={currentTabData}
+        data={profiles}
         keyExtractor={(item) => item.id}
         renderItem={renderProfile}
         ListEmptyComponent={renderEmpty}
@@ -469,7 +289,7 @@ export default function PeopleScreen() {
           paddingBottom: 20,
           flexGrow: 1
         }}
-        // Performance optimizations (same as HomeScreen)
+        // Performance optimizations
         removeClippedSubviews={Platform.OS === 'android'}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}

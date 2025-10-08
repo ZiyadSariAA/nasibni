@@ -287,19 +287,82 @@ class LikeService {
             if (likerData.accountStatus === 'active' && likerData.profileCompleted) {
               const profileData = likerData.profileData || {};
 
+              // Normalize country data - KEEP BOTH ARABIC AND ENGLISH NAMES
+              const normalizeCountry = (countryObj) => {
+                if (!countryObj) return null;
+                if (typeof countryObj === 'string') return countryObj;
+
+                return {
+                  nameAr: countryObj.nameAr || countryObj.countryName || '',
+                  nameEn: countryObj.nameEn || countryObj.countryName || '',
+                  countryName: countryObj.countryName || countryObj.nameEn || '',
+                  code: countryObj.alpha2 || countryObj.code || ''
+                };
+              };
+
+              // Pre-process photos array
+              const normalizedPhotos = profileData.photos && Array.isArray(profileData.photos)
+                ? profileData.photos.filter(photo => photo && typeof photo === 'string')
+                : [];
+
               likerProfiles.push({
                 id: likerDoc.id,
+                // Core identity
                 displayName: profileData.displayName || likerData.displayName || 'Unknown',
+                name: profileData.displayName || likerData.displayName || 'Unknown',
                 age: profileData.age || null,
                 gender: profileData.gender || null,
-                nationality: profileData.nationality || null,
+
+                // Physical attributes
                 height: profileData.height || null,
                 weight: profileData.weight || null,
-                photos: likerData.photos || [],
-                firstPhoto: (likerData.photos && likerData.photos[0]?.url) || null,
-                residenceCountry: profileData.residenceCountry || null,
+                skinTone: profileData.skinTone || null,
+
+                // Location (pre-normalized)
+                nationality: normalizeCountry(profileData.nationality),
+                residenceCountry: normalizeCountry(profileData.residenceCountry),
                 residenceCity: profileData.residenceCity || null,
-                aboutMe: profileData.aboutMe || null
+                country: profileData.residenceCountry?.countryName ||
+                         profileData.residenceCountry?.nameEn || '',
+                city: profileData.residenceCity || '',
+
+                // Background & Social
+                maritalStatus: profileData.maritalStatus || null,
+                religion: profileData.religion || null,
+                prayerHabit: profileData.prayerHabit || null,
+                educationLevel: profileData.educationLevel || null,
+                workStatus: profileData.workStatus || null,
+                tribeAffiliation: profileData.tribeAffiliation || null,
+
+                // Marriage Preferences
+                marriageTypes: profileData.marriageTypes || [],
+                marriagePlan: profileData.marriagePlan || null,
+                residenceAfterMarriage: profileData.residenceAfterMarriage || null,
+
+                // Family & Children
+                childrenTiming: profileData.childrenTiming || null,
+                allowWifeWorkStudy: profileData.allowWifeWorkStudy || null,
+
+                // Financial & Health
+                incomeLevel: profileData.incomeLevel || null,
+                healthStatus: profileData.healthStatus || [],
+
+                // Lifestyle
+                smoking: profileData.smoking || null,
+                chatLanguages: profileData.chatLanguages || [],
+
+                // Descriptions
+                aboutMe: profileData.aboutMe || null,
+                idealPartner: profileData.idealPartner || null,
+                description: profileData.aboutMe || '',
+                about: profileData.aboutMe || '',
+
+                // Photos (pre-processed)
+                photos: normalizedPhotos,
+                firstPhoto: normalizedPhotos[0] || null,
+
+                // Metadata
+                createdAt: likerData.createdAt || profileData.completedAt || new Date().toISOString(),
               });
             }
           }
@@ -379,19 +442,82 @@ class LikeService {
             if (likedUserData.accountStatus === 'active' && likedUserData.profileCompleted) {
               const profileData = likedUserData.profileData || {};
 
+              // Normalize country data - KEEP BOTH ARABIC AND ENGLISH NAMES
+              const normalizeCountry = (countryObj) => {
+                if (!countryObj) return null;
+                if (typeof countryObj === 'string') return countryObj;
+
+                return {
+                  nameAr: countryObj.nameAr || countryObj.countryName || '',
+                  nameEn: countryObj.nameEn || countryObj.countryName || '',
+                  countryName: countryObj.countryName || countryObj.nameEn || '',
+                  code: countryObj.alpha2 || countryObj.code || ''
+                };
+              };
+
+              // Pre-process photos array
+              const normalizedPhotos = profileData.photos && Array.isArray(profileData.photos)
+                ? profileData.photos.filter(photo => photo && typeof photo === 'string')
+                : [];
+
               likedUserProfiles.push({
                 id: likedUserDoc.id,
+                // Core identity
                 displayName: profileData.displayName || likedUserData.displayName || 'Unknown',
+                name: profileData.displayName || likedUserData.displayName || 'Unknown',
                 age: profileData.age || null,
                 gender: profileData.gender || null,
-                nationality: profileData.nationality || null,
+
+                // Physical attributes
                 height: profileData.height || null,
                 weight: profileData.weight || null,
-                photos: likedUserData.photos || [],
-                firstPhoto: (likedUserData.photos && likedUserData.photos[0]?.url) || null,
-                residenceCountry: profileData.residenceCountry || null,
+                skinTone: profileData.skinTone || null,
+
+                // Location (pre-normalized)
+                nationality: normalizeCountry(profileData.nationality),
+                residenceCountry: normalizeCountry(profileData.residenceCountry),
                 residenceCity: profileData.residenceCity || null,
-                aboutMe: profileData.aboutMe || null
+                country: profileData.residenceCountry?.countryName ||
+                         profileData.residenceCountry?.nameEn || '',
+                city: profileData.residenceCity || '',
+
+                // Background & Social
+                maritalStatus: profileData.maritalStatus || null,
+                religion: profileData.religion || null,
+                prayerHabit: profileData.prayerHabit || null,
+                educationLevel: profileData.educationLevel || null,
+                workStatus: profileData.workStatus || null,
+                tribeAffiliation: profileData.tribeAffiliation || null,
+
+                // Marriage Preferences
+                marriageTypes: profileData.marriageTypes || [],
+                marriagePlan: profileData.marriagePlan || null,
+                residenceAfterMarriage: profileData.residenceAfterMarriage || null,
+
+                // Family & Children
+                childrenTiming: profileData.childrenTiming || null,
+                allowWifeWorkStudy: profileData.allowWifeWorkStudy || null,
+
+                // Financial & Health
+                incomeLevel: profileData.incomeLevel || null,
+                healthStatus: profileData.healthStatus || [],
+
+                // Lifestyle
+                smoking: profileData.smoking || null,
+                chatLanguages: profileData.chatLanguages || [],
+
+                // Descriptions
+                aboutMe: profileData.aboutMe || null,
+                idealPartner: profileData.idealPartner || null,
+                description: profileData.aboutMe || '',
+                about: profileData.aboutMe || '',
+
+                // Photos (pre-processed)
+                photos: normalizedPhotos,
+                firstPhoto: normalizedPhotos[0] || null,
+
+                // Metadata
+                createdAt: likedUserData.createdAt || profileData.completedAt || new Date().toISOString(),
               });
             }
           }
