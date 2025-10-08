@@ -91,3 +91,6 @@ jspm_packages/
 # Generated native folders
 /ios
 /android
+
+# Security rules documentation (sensitive)
+docs/FIRESTORE_SECURITY_RULES.md
