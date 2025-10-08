@@ -1,16 +1,14 @@
-<<<<<<< HEAD
 import './global.css';
-import { StatusBar } from 'expo-status-bar';
 import AppNavigator from './src/navigation/AppNavigator';
 import { LanguageProvider } from './src/contexts/LanguageContext';
 import { TranslationProvider } from './src/contexts/TranslationContext';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { OnboardingProvider } from './src/contexts/OnboardingContext';
-import { 
+import {
   useFonts,
-  Cairo_400Regular, 
-  Cairo_600SemiBold, 
-  Cairo_700Bold 
+  Cairo_400Regular,
+  Cairo_600SemiBold,
+  Cairo_700Bold
 } from '@expo-google-fonts/cairo';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -34,37 +32,14 @@ export default function App() {
   if (!fontsLoaded) return null;
 
   return (
-    <AuthProvider>
-      <OnboardingProvider>
-        <LanguageProvider>
-          <TranslationProvider>
+    <LanguageProvider>
+      <TranslationProvider>
+        <AuthProvider>
+          <OnboardingProvider>
             <AppNavigator />
-            <StatusBar style="auto" />
-          </TranslationProvider>
-        </LanguageProvider>
-      </OnboardingProvider>
-    </AuthProvider>
+          </OnboardingProvider>
+        </AuthProvider>
+      </TranslationProvider>
+    </LanguageProvider>
   );
 }
-=======
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
->>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6

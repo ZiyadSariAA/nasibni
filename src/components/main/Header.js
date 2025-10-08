@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, StatusBar, Platform, Image } from 'react-native';
+import { View, Platform, Image } from 'react-native';
 import Text from './Text';
+import SmartStatusBar from './SmartStatusBar';
 import { FONTS } from '../../config/fonts';
 
-const Header = ({ 
-  title, 
+const Header = ({
+  title,
   subtitle,
   showBackButton = false,
   onBackPress,
@@ -13,15 +14,11 @@ const Header = ({
   textColor = 'white'
 }) => {
   const headerClasses = `pt-safe-top pb-3 px-screen-padding shadow-lg z-50 relative`;
-  
+
   return (
     <>
-      <StatusBar 
-        barStyle="light-content" 
-        backgroundColor={backgroundColor}
-        translucent={true}
-      />
-      <View 
+      <SmartStatusBar backgroundColor={backgroundColor} />
+      <View
         className={headerClasses}
         style={{ backgroundColor }}
       >

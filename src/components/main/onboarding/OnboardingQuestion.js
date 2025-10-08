@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Text from '../Text';
+import SmartStatusBar from '../SmartStatusBar';
 import AnimatedProgressBar from './AnimatedProgressBar';
 
 const OnboardingQuestion = ({
@@ -21,6 +22,7 @@ const OnboardingQuestion = ({
 
   return (
     <SafeAreaView className="flex-1 bg-background-alt" edges={['top', 'bottom']}>
+      <SmartStatusBar backgroundColor="#F9FAFB" />
       {/* Progress Bar - Hidden for better UX */}
       {/* <View className="px-screen-padding pt-4 pb-6">
         <AnimatedProgressBar currentStep={currentStep} totalSteps={totalSteps} />

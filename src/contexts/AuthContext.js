@@ -9,8 +9,56 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
+import { useLanguage } from './LanguageContext';
 
 const AuthContext = createContext();
+
+// Bilingual error messages
+const ERROR_MESSAGES = {
+  // Sign In errors
+  'signin-default': {
+    ar: 'حدث خطأ أثناء تسجيل الدخول',
+    en: 'An error occurred during sign in'
+  },
+  'auth/invalid-email': {
+    ar: 'البريد الإلكتروني غير صالح',
+    en: 'Invalid email address'
+  },
+  'auth/user-disabled': {
+    ar: 'تم تعطيل هذا الحساب',
+    en: 'This account has been disabled'
+  },
+  'auth/user-not-found': {
+    ar: 'المستخدم غير موجود',
+    en: 'User not found'
+  },
+  'auth/wrong-password': {
+    ar: 'كلمة المرور غير صحيحة',
+    en: 'Incorrect password'
+  },
+  'auth/invalid-credential': {
+    ar: 'البريد الإلكتروني أو كلمة المرور غير صحيحة',
+    en: 'Invalid email or password'
+  },
+  // Sign Up errors
+  'signup-default': {
+    ar: 'حدث خطأ أثناء إنشاء الحساب',
+    en: 'An error occurred during account creation'
+  },
+  'auth/email-already-in-use': {
+    ar: 'البريد الإلكتروني مستخدم بالفعل',
+    en: 'Email address is already in use'
+  },
+  'auth/weak-password': {
+    ar: 'كلمة المرور ضعيفة. يجب أن تكون 6 أحرف على الأقل',
+    en: 'Weak password. Must be at least 6 characters'
+  },
+  // Reset Password errors
+  'reset-default': {
+    ar: 'حدث خطأ أثناء إرسال رابط إعادة تعيين كلمة المرور',
+    en: 'An error occurred while sending password reset link'
+  }
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -24,6 +72,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(true);
+  const { language } = useLanguage();
+
+  // Helper function to get error message in current language
+  const getErrorMessage = (errorCode, defaultKey) => {
+    const message = ERROR_MESSAGES[errorCode] || ERROR_MESSAGES[defaultKey];
+    return message ? message[language] || message.ar : ERROR_MESSAGES[defaultKey][language];
+  };
 
   // Initialize auth state - Listen to Firebase auth changes
   useEffect(() => {
@@ -110,23 +165,20 @@ export const AuthProvider = ({ children }) => {
 
       return userData;
     } catch (error) {
-      console.error('❌ Sign-In Error:', error);
+      console.error('═══════════════════════════════════════');
+      console.error('🔴 ERROR: Sign-In');
+      console.error('═══════════════════════════════════════');
+      console.error('Error Message:', error.message);
+      console.error('Error Code:', error.code);
+      console.error('Error Stack:', error.stack);
+      console.error('Error Object:', error);
+      console.error('Email:', email);
+      console.error('Timestamp:', new Date().toISOString());
+      console.error('═══════════════════════════════════════');
       setLoading(false);
 
-      // Handle Firebase errors with user-friendly messages
-      let errorMessage = 'حدث خطأ أثناء تسجيل الدخول';
-
-      if (error.code === 'auth/invalid-email') {
-        errorMessage = 'البريد الإلكتروني غير صالح';
-      } else if (error.code === 'auth/user-disabled') {
-        errorMessage = 'تم تعطيل هذا الحساب';
-      } else if (error.code === 'auth/user-not-found') {
-        errorMessage = 'المستخدم غير موجود';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'كلمة المرور غير صحيحة';
-      } else if (error.code === 'auth/invalid-credential') {
-        errorMessage = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
-      }
+      // Handle Firebase errors with bilingual user-friendly messages
+      const errorMessage = getErrorMessage(error.code, 'signin-default');
 
       throw new Error(errorMessage);
     }
@@ -143,13 +195,74 @@ export const AuthProvider = ({ children }) => {
 
       console.log('✅ Firebase account created:', firebaseUser.email);
 
-      // Create user profile in Firestore
+      // Create user profile in Firestore with all default fields
       const userDocRef = doc(db, 'users', firebaseUser.uid);
       await setDoc(userDocRef, {
+        // Basic info
+        userId: firebaseUser.uid,
         email: firebaseUser.email,
+        phoneNumber: null,
         displayName: displayName,
+
+        // Profile completion
         profileCompleted: false,
+        profileData: {},
+
+        // Account status & moderation
+        accountStatus: 'active',
+        isVerified: false,
+        suspendedUntil: null,
+        banReason: null,
+        moderationNotes: null,
+
+        // Activity tracking
+        lastActive: new Date().toISOString(),
+        isOnline: false,
+        deviceToken: null,
+
+        // Profile views
+        profileViews: 0,
+        viewedBy: [],
+        viewedProfiles: [],
+
+        // Likes
+        totalLikes: 0,
+        likedProfiles: [],
+        whoLikedMe: [],
+
+        // Blocking & safety
+        blockedUsers: [],
+        blockedBy: [],
+        reportCount: 0,
+        warningCount: 0,
+        strikeCount: 0,
+
+        // Chat
+        conversations: [],
+        unreadMessagesCount: 0,
+        lastMessageTime: null,
+
+        // Location
+        location: null,
+        gpsEnabled: false,
+
+        // Privacy settings
+        showOnlineStatus: true,
+        showLastSeen: true,
+
+        // Photos
+        photos: [],
+        profilePhotoUrl: null,
+
+        // Stats
+        popularity: 5.0,
+
+        // Premium
+        isPremium: false,
+
+        // Timestamps
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       const userData = {
@@ -167,18 +280,21 @@ export const AuthProvider = ({ children }) => {
 
       return userData;
     } catch (error) {
-      console.error('❌ Sign-Up Error:', error);
+      console.error('═══════════════════════════════════════');
+      console.error('🔴 ERROR: Sign-Up');
+      console.error('═══════════════════════════════════════');
+      console.error('Error Message:', error.message);
+      console.error('Error Code:', error.code);
+      console.error('Error Stack:', error.stack);
+      console.error('Error Object:', error);
+      console.error('Email:', email);
+      console.error('Display Name:', displayName);
+      console.error('Timestamp:', new Date().toISOString());
+      console.error('═══════════════════════════════════════');
       setLoading(false);
 
-      let errorMessage = 'حدث خطأ أثناء إنشاء الحساب';
-
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'البريد الإلكتروني مستخدم بالفعل';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'البريد الإلكتروني غير صالح';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'كلمة المرور ضعيفة. يجب أن تكون 6 أحرف على الأقل';
-      }
+      // Handle Firebase errors with bilingual user-friendly messages
+      const errorMessage = getErrorMessage(error.code, 'signup-default');
 
       throw new Error(errorMessage);
     }
@@ -192,13 +308,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('❌ Reset Password Error:', error);
 
-      let errorMessage = 'حدث خطأ أثناء إرسال رابط إعادة تعيين كلمة المرور';
-
-      if (error.code === 'auth/invalid-email') {
-        errorMessage = 'البريد الإلكتروني غير صالح';
-      } else if (error.code === 'auth/user-not-found') {
-        errorMessage = 'المستخدم غير موجود';
-      }
+      // Handle Firebase errors with bilingual user-friendly messages
+      const errorMessage = getErrorMessage(error.code, 'reset-default');
 
       throw new Error(errorMessage);
     }

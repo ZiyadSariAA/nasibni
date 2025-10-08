@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, StatusBar } from 'react-native';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Button, Text, Input, Header } from '../../../components/main';

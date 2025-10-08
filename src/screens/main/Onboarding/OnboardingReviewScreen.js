@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTranslation } from '../../../contexts/TranslationContext';
-import { Text, Button } from '../../../components/main';
+import { Text, Button, SmartStatusBar } from '../../../components/main';
 import { ONBOARDING_QUESTIONS } from '../../../config/onboardingQuestions';
 
 export default function OnboardingReviewScreen({ navigation }) {
@@ -113,6 +113,7 @@ export default function OnboardingReviewScreen({ navigation }) {
 
   return (
     <View className="flex-1 bg-background-alt">
+      <SmartStatusBar backgroundColor="#FFFFFF" />
       {/* Header */}
       <View className="bg-white px-screen-padding pt-safe-top pb-8 border-b border-border">
         <Text variant="h2" weight="bold" className={`text-primary mb-3 ${isArabic ? 'text-right' : 'text-left'}`}>
@@ -180,11 +181,11 @@ export default function OnboardingReviewScreen({ navigation }) {
           />
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-white rounded-2xl p-4 mb-4 items-center flex-row"
           onPress={() => navigation.navigate('OnboardingLanguage')}
         >
-          <MaterialIcons name="edit" size={20} color="#4F2396" style={{ marginRight: 8 }} />
+          <Ionicons name="pencil" size={20} color="#4F2396" style={{ marginRight: 8 }} />
           <Text variant="body" className="text-[#4F2396]">
             {isArabic ? 'تعديل البيانات' : 'Edit Information'}
           </Text>

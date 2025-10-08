@@ -52,6 +52,9 @@ export default function DynamicOnboardingScreen({ route, navigation }) {
     if (question.type === 'nested-text') {
       return onboardingData[question.field] || {};
     }
+    if (question.type === 'multi-select') {
+      return onboardingData[question.field] || [];
+    }
     return onboardingData[question.field] || (question.defaultValue !== undefined ? question.defaultValue : null);
   });
 
@@ -67,6 +70,8 @@ export default function DynamicOnboardingScreen({ route, navigation }) {
   useEffect(() => {
     if (question.type === 'nested-text') {
       setValue(onboardingData[question.field] || {});
+    } else if (question.type === 'multi-select') {
+      setValue(onboardingData[question.field] || []);
     } else {
       setValue(onboardingData[question.field] || (question.defaultValue !== undefined ? question.defaultValue : null));
     }
@@ -136,22 +141,31 @@ export default function DynamicOnboardingScreen({ route, navigation }) {
   const handleNext = () => {
     if (!isValid()) return;
 
+    // Create updated onboarding data object
+    let updatedData = { ...onboardingData };
+
     // Save current answer
     if (question.type === 'nested-text') {
       Object.keys(value).forEach(key => {
         updateNestedData(question.field, key, value[key]);
+        if (!updatedData[question.field]) {
+          updatedData[question.field] = {};
+        }
+        updatedData[question.field][key] = value[key];
       });
     } else {
       updateOnboardingData(question.field, value);
+      updatedData[question.field] = value;
     }
 
     // Save conditional field if exists
     if (question.conditionalField && question.conditionalField.condition(value)) {
       updateOnboardingData(question.conditionalField.field, conditionalValue);
+      updatedData[question.conditionalField.field] = conditionalValue;
     }
 
-    // Navigate to next question
-    const nextQuestionId = getNextQuestionId(question, value, onboardingData);
+    // Navigate to next question with UPDATED data
+    const nextQuestionId = getNextQuestionId(question, value, updatedData);
 
     if (nextQuestionId) {
       navigation.push('DynamicOnboarding', { questionId: nextQuestionId });

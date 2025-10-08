@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, StatusBar } from 'react-native';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Button, Text, Input, Header } from '../../../components/main';
@@ -8,7 +8,6 @@ import { FONTS } from '../../../config/fonts';
 export default function SignUpScreen({ navigation }) {
   const { isArabic, isLoading: isLanguageLoading } = useLanguage();
   const { signUpWithEmail } = useAuth();
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,7 +22,7 @@ export default function SignUpScreen({ navigation }) {
     setIsSigningUp(true);
 
     // Validation
-    if (!name || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       Alert.alert(
         isArabic ? 'خطأ' : 'Error',
         isArabic ? 'يرجى ملء جميع الحقول' : 'Please fill in all fields'
@@ -51,7 +50,7 @@ export default function SignUpScreen({ navigation }) {
     }
 
     try {
-      const user = await signUpWithEmail(email, password, name);
+      const user = await signUpWithEmail(email, password);
 
       if (user) {
         console.log('✅ Account created:', user.email);
@@ -74,8 +73,6 @@ export default function SignUpScreen({ navigation }) {
   };
 
   const logoText = isArabic ? 'ناسبني' : 'Nasibni';
-  const nameLabel = isArabic ? 'الاسم' : 'Name';
-  const namePlaceholder = isArabic ? 'أدخل اسمك' : 'Enter your name';
   const emailLabel = isArabic ? 'البريد الإلكتروني' : 'Email';
   const emailPlaceholder = isArabic ? 'example@email.com' : 'example@email.com';
   const passwordLabel = isArabic ? 'كلمة المرور' : 'Password';
@@ -114,34 +111,6 @@ export default function SignUpScreen({ navigation }) {
 
         {/* Form */}
         <View className="w-full">
-          {/* Name Input */}
-          <View className="mb-6">
-            <Text
-              style={{
-                fontSize: 14,
-                color: '#4F2396',
-                marginBottom: 10,
-                fontFamily: FONTS.semibold,
-                textAlign: isArabic ? 'right' : 'left',
-              }}
-            >
-              {nameLabel}
-            </Text>
-            <Input
-              value={name}
-              onChangeText={setName}
-              placeholder={namePlaceholder}
-              autoCapitalize="words"
-              style={{ marginBottom: 0 }}
-              inputStyle={{
-                fontFamily: FONTS.regular,
-                fontSize: 16,
-                color: '#1F2937',
-                textAlign: isArabic ? 'right' : 'left',
-              }}
-            />
-          </View>
-
           {/* Email Input */}
           <View className="mb-6">
             <Text

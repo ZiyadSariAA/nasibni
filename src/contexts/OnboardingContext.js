@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 import { db } from '../config/firebase';
 
@@ -143,6 +143,10 @@ export const OnboardingProvider = ({ children }) => {
 
   const completeOnboarding = async () => {
     try {
+      console.log('🚀 Starting onboarding completion...');
+      console.log('👤 User UID:', user?.uid);
+      console.log('📧 User Email:', user?.email);
+
       if (!user || !user.uid) {
         console.error('User object:', user);
         throw new Error('User not found or invalid');
@@ -191,42 +195,62 @@ export const OnboardingProvider = ({ children }) => {
         completedAt: new Date().toISOString()
       };
 
-      // Save to Firestore
+      // Prepare photos array with metadata
+      const photosArray = Array.isArray(onboardingData.photos)
+        ? onboardingData.photos.map((photoUrl, index) => ({
+            url: photoUrl,
+            order: index,
+            uploadedAt: new Date().toISOString(),
+            isProfilePhoto: index === 0 // First photo is profile photo
+          }))
+        : [];
+
+      const firstPhotoUrl = photosArray.length > 0 ? photosArray[0].url : null;
+
+      // Save to Firestore with all necessary fields
+      console.log('💾 Preparing to save to Firestore...');
       const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, {
+      console.log('📄 Document path:', `users/${user.uid}`);
+
+      // Check if document exists
+      console.log('🔍 Checking if document exists...');
+      const existingDoc = await getDoc(userDocRef);
+
+      const dataToSave = {
+        // Profile data with all onboarding answers
         profileData: userOnboardingData,
+
+        // Profile completion
         profileCompleted: true,
+
+        // Basic user info
+        userId: user.uid,
+        email: user.email,
+        displayName: onboardingData.displayName,
+
+        // Account status
+        accountStatus: 'active',
+
+        // Location settings
+        gpsEnabled: onboardingData.enableLocation === true,
+
+        // Photos
+        photos: photosArray,
+        profilePhotoUrl: firstPhotoUrl,
+
+        // Timestamps
         updatedAt: new Date().toISOString(),
-      }, { merge: true });
+        ...((!existingDoc.exists()) && { createdAt: new Date().toISOString() })
+      };
+
+      console.log('📦 Data to save:', JSON.stringify(dataToSave, null, 2));
+      console.log('📊 Document exists:', existingDoc.exists());
+      console.log('🔄 Calling setDoc...');
+
+      // Use merge: true to preserve any existing fields
+      await setDoc(userDocRef, dataToSave, { merge: true });
 
       console.log('✅ Onboarding data saved to Firestore for user:', user.uid);
-
-      // Create public profile for matching
-      const publicProfileRef = doc(db, 'publicProfiles', user.uid);
-
-      // Get user name from onboarding data
-      const displayName = onboardingData?.displayName || user?.email?.split('@')[0] || 'User';
-
-      console.log('Creating publicProfile with displayName:', displayName);
-
-      await setDoc(publicProfileRef, {
-        name: displayName,
-        displayName: displayName,
-        birthYear: onboardingData.age ? new Date().getFullYear() - onboardingData.age : null,
-        age: onboardingData.age || null,
-        height: onboardingData.height || null,
-        nationality: onboardingData.nationality?.countryName || onboardingData.nationality || null,
-        location: onboardingData.residenceCountry || null,
-        country: onboardingData.residenceCountry?.countryName || '',
-        firstPhoto: onboardingData.photos && onboardingData.photos.length > 0 ? onboardingData.photos[0] : null,
-        photos: onboardingData.photos || [],
-        about: onboardingData.aboutMe || '',
-        description: onboardingData.aboutMe || '',
-        gender: onboardingData.gender || null,
-        createdAt: new Date().toISOString(),
-      });
-
-      console.log('✅ Public profile created for user:', user.uid);
 
       // Also save to AsyncStorage as backup
       const existingData = await AsyncStorage.getItem('onboardingData');

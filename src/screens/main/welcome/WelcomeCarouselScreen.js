@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, Dimensions, StatusBar } from 'react-native';
+import { View, ScrollView, Dimensions } from 'react-native';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { welcomeSlides } from './welcomeData';
-import { WelcomeSlide, WelcomeDots, WelcomeNavigation } from '../../../components/main';
+import { WelcomeSlide, WelcomeDots, WelcomeNavigation, SmartStatusBar } from '../../../components/main';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,8 +45,8 @@ export default function WelcomeCarouselScreen({ navigation }) {
 
   return (
     <View className="flex-1 bg-white">
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
+      <SmartStatusBar backgroundColor="#FFFFFF" />
+
       <WelcomeNavigation
         isArabic={isArabic}
         currentIndex={currentIndex}

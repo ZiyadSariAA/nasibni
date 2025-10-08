@@ -1,21 +1,14 @@
-<<<<<<< HEAD
 # Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-=======
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
-node_modules/
->>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
 
 # Expo
 .expo/
 dist/
 web-build/
-<<<<<<< HEAD
+expo-env.d.ts
 
 # Environment variables
 .env
@@ -23,6 +16,12 @@ web-build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
+
+# Firebase Admin SDK (IMPORTANT - NEVER COMMIT!)
+firebase-admin-key.json
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
 
 # OS generated files
 .DS_Store
@@ -41,6 +40,8 @@ Thumbs.db
 
 # Logs
 *.log
+firebase-debug.log
+firestore-debug.log
 
 # Runtime data
 pids
@@ -48,16 +49,14 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
-
-# nyc test coverage
 .nyc_output
 
 # Dependency directories
 jspm_packages/
 
-# Optional npm cache directory
+# Optional npm cache
 .npm
 
 # Optional eslint cache
@@ -69,14 +68,12 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
+# Metro
+.metro-health-check*
 
-# Firebase
-firebase-debug.log
-firestore-debug.log
-=======
-expo-env.d.ts
+# Temporary files
+*.tmp
+*.temp
 
 # Native
 .kotlin/
@@ -86,32 +83,11 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
->>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6
-
-# Metro
-.metro-health-check*
-
-<<<<<<< HEAD
-# Temporary files
-*.tmp
-*.temp
-=======
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
 *.pem
 
-# local env files
-.env*.local
-
-# typescript
+# TypeScript
 *.tsbuildinfo
 
-# generated native folders
+# Generated native folders
 /ios
 /android
->>>>>>> a1c92286342ab28d8be5aa3ea40c28b3d4a91ee6

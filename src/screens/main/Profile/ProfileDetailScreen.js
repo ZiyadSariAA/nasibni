@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert, StatusBar } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTranslation } from '../../../contexts/TranslationContext';
-import { Text, Header, Button } from '../../../components/main';
+import { Text, Header, Button, InfoRow } from '../../../components/main';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebase';
+
+// Preload default avatars for better performance
+const DEFAULT_AVATARS = {
+  male: require('../../../assets/AvatorsInages/manAvator.png'),
+  female: require('../../../assets/AvatorsInages/womanAvator.png')
+};
 
 export default function ProfileDetailScreen({ route, navigation }) {
   const { profileId } = route.params;
@@ -14,6 +21,11 @@ export default function ProfileDetailScreen({ route, navigation }) {
   const { getText } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Get default avatar based on gender
+  const getDefaultAvatar = (gender) => {
+    return gender === 'female' ? DEFAULT_AVATARS.female : DEFAULT_AVATARS.male;
+  };
 
   // Don't render until language is loaded
   if (isLoading) {
@@ -27,19 +39,17 @@ export default function ProfileDetailScreen({ route, navigation }) {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      
-      // If profileId is the current user's ID, get from users collection
-      // Otherwise, get from publicProfiles collection
-      const collection = profileId === user?.uid ? 'users' : 'publicProfiles';
-      const docRef = doc(db, collection, profileId);
+
+      // Always get from users collection
+      const docRef = doc(db, 'users', profileId);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        
-        // If it's from users collection, get profileData
-        const profileData = collection === 'users' ? data.profileData : data;
-        
+
+        // Get profileData from users collection
+        const profileData = data.profileData;
+
         setProfile({
           id: profileId,
           ...profileData,
@@ -65,21 +75,6 @@ export default function ProfileDetailScreen({ route, navigation }) {
     }
   };
 
-  const InfoRow = ({ label, value, icon }) => (
-    <View className="py-4 border-b border-border">
-      <View className="flex-row items-center mb-2">
-        {icon && (
-          <Text className="text-lg mr-3">{icon}</Text>
-        )}
-        <Text variant="caption" color="muted" className={isArabic ? 'text-right flex-1' : 'text-left flex-1'}>
-          {label}
-        </Text>
-      </View>
-      <Text variant="body" className={isArabic ? 'text-right' : 'text-left'}>
-        {value || (isArabic ? 'غير محدد' : 'Not specified')}
-      </Text>
-    </View>
-  );
 
   const getDisplayValue = (fieldName, value) => {
     if (!value) return null;
@@ -166,7 +161,7 @@ export default function ProfileDetailScreen({ route, navigation }) {
         <View className="bg-white mx-4 mt-4 rounded-2xl p-6 items-center">
           {/* Profile Image */}
           <Image
-            source={{ uri: profile?.firstPhoto || 'https://via.placeholder.com/120' }}
+            source={profile?.photos?.[0] ? { uri: profile.photos[0] } : getDefaultAvatar(profile?.gender)}
             className="w-30 h-30 rounded-full mb-4"
             resizeMode="cover"
           />
@@ -191,10 +186,13 @@ export default function ProfileDetailScreen({ route, navigation }) {
           </View>
 
           {/* Location */}
-          {profile?.country && (
-            <Text variant="body" className="text-text-muted">
-              📍 {profile.country}
-            </Text>
+          {(profile?.residenceCountry?.countryName || profile?.residenceCountry) && (
+            <View className="flex-row items-center gap-1">
+              <Ionicons name="location-outline" size={16} color="#6B7280" />
+              <Text variant="body" className="text-text-muted">
+                {profile.residenceCountry?.countryName || profile.residenceCountry}
+              </Text>
+            </View>
           )}
         </View>
 
@@ -205,50 +203,50 @@ export default function ProfileDetailScreen({ route, navigation }) {
           </Text>
 
           <InfoRow
+            icon="flag-outline"
             label={isArabic ? 'الجنسية' : 'Nationality'}
             value={profile?.nationality?.countryName || profile?.nationality}
-            icon="🏳️"
           />
 
           <InfoRow
+            icon="heart-circle-outline"
             label={isArabic ? 'الحالة الاجتماعية' : 'Marital Status'}
             value={getDisplayValue('maritalStatus', profile?.maritalStatus)}
-            icon="💍"
           />
 
           <InfoRow
+            icon="moon-outline"
             label={isArabic ? 'الدين' : 'Religion'}
             value={getDisplayValue('religion', profile?.religion)}
-            icon="🕌"
           />
 
           {profile?.madhhab && (
             <InfoRow
+              icon="book-outline"
               label={isArabic ? 'المذهب' : 'Madhhab'}
               value={getDisplayValue('madhhab', profile?.madhhab)}
-              icon="📖"
             />
           )}
 
           <InfoRow
+            icon="school-outline"
             label={isArabic ? 'التعليم' : 'Education'}
             value={getDisplayValue('educationLevel', profile?.educationLevel)}
-            icon="🎓"
           />
 
           {profile?.workStatus && (
             <InfoRow
+              icon="briefcase-outline"
               label={isArabic ? 'الوظيفة' : 'Work'}
               value={profile.workStatus}
-              icon="💼"
             />
           )}
 
           {profile?.chatLanguages && profile.chatLanguages.length > 0 && (
             <InfoRow
+              icon="chatbubbles-outline"
               label={isArabic ? 'اللغات' : 'Languages'}
               value={profile.chatLanguages.join(', ')}
-              icon="🗣️"
             />
           )}
         </View>

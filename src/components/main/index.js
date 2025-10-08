@@ -5,11 +5,21 @@ export { default as Card } from './Card';
 export { default as Text } from './Text';
 export { default as Header } from './Header';
 export { default as Icon } from './Icon';
+export { default as SmartStatusBar } from './SmartStatusBar';
+
+// Reusable State Components
+export { default as InfoRow } from './InfoRow';
+export { default as LoadingState } from './LoadingState';
+export { default as EmptyState } from './EmptyState';
+export { default as ErrorState } from './ErrorState';
+
+// Screen Components
 export { default as OnboardingQuestion } from './onboarding/OnboardingQuestion';
 export { default as WelcomeSlide } from './WelcomeSlide';
 export { default as WelcomeDots } from './WelcomeDots';
 export { default as WelcomeNavigation } from './WelcomeNavigation';
-export { default as ProfileCard } from './ProfileCard';
+export { default as CompactProfileCard } from './CompactProfileCard';
+export { default as LikeButton } from './LikeButton';
 
 // Country and City Pickers (from onboarding folder)
 export { default as CountryPicker } from './onboarding/CountryPicker';

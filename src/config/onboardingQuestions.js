@@ -1,14 +1,15 @@
 /**
  * Nasibni Onboarding Questions Configuration
  *
- * This file contains all 23 onboarding questions in a data-driven format.
- * Each question defines its type, field name, question text, options, and validation.
+ * Updated configuration with 27 fields from UI mockups.
+ * Primary color: #4F2396
+ * Arabic labels are canonical; English labels included for i18n.
  */
 
 import CountryDataService from '../services/CountryDataService';
 import { Ionicons } from '@expo/vector-icons';
 
-// دالة للحصول على قائمة الدول المفضلة
+// Helper function to get countries list
 const getCountriesList = () => {
   return CountryDataService.getPopularCountries('ar').map(country => ({
     id: country.alpha2,
@@ -23,115 +24,85 @@ export const ONBOARDING_QUESTIONS = [
     type: 'text',
     field: 'displayName',
     question: {
-      en: 'What is your name?',
-      ar: 'ما اسمك؟'
-    },
-    helpText: {
-      en: 'This is the name that will appear on your profile',
-      ar: 'هذا هو الاسم الذي سيظهر في ملفك الشخصي'
+      ar: 'ما اسمك؟',
+      en: 'Display Name'
     },
     placeholder: {
-      en: 'Enter your name',
-      ar: 'أدخل اسمك'
+      ar: 'أدخل اسمك',
+      en: 'Enter your name'
     },
-    maxLength: 50,
+    maxLength: 14,
     required: true,
     validation: {
-      minLength: 2,
-      pattern: /^[a-zA-Z\u0600-\u06FF\s]+$/,
+      minLength: 3,
+      maxLength: 14,
+      maxDigits: 5, // digits < 5 total
+      pattern: /^[a-zA-Z\u0600-\u06FF0-9]+$/, // no spaces or symbols
       message: {
-        en: 'Name must be at least 2 characters',
-        ar: 'يجب أن يكون الاسم حرفين على الأقل'
+        ar: 'الاسم يجب أن يكون من 3-14 حرفًا، بدون مسافات أو رموز، وأقل من 5 أرقام',
+        en: 'Name must be 3-14 characters, no spaces/symbols, less than 5 digits'
       }
     },
     showBack: false
   },
 
-  // Question 2: App Language
-  {
-    id: 'language',
-    type: 'select',
-    field: 'appLanguage',
-    question: {
-      en: 'Choose your app language',
-      ar: 'اختر لغة التطبيق'
-    },
-    helpText: {
-      en: 'This changes the interface language only',
-      ar: 'هذا يغير لغة الواجهة فقط'
-    },
-    options: [
-      { id: 'ar', label: { en: 'Arabic', ar: 'العربية' } },
-      { id: 'en', label: { en: 'English', ar: 'English' } }
-    ],
-    required: true,
-    showBack: true
-  },
-
-  // Question 3: Enable Location
-  {
-    id: 'location',
-    type: 'select-with-description',
-    field: 'enableLocation',
-    question: {
-      en: 'Do you want to enable location services?',
-      ar: 'هل تريد تفعيل خدمات الموقع؟'
-    },
-    options: [
-      {
-        id: true,
-        label: { en: 'Yes, enable location', ar: 'نعم، تفعيل الموقع' },
-        description: { en: 'To find people near you', ar: 'للعثور على أشخاص قريبين منك' }
-      },
-      {
-        id: false,
-        label: { en: 'No, maybe later', ar: 'لا، لاحقاً' },
-        description: { en: 'You can enable it later from settings', ar: 'يمكنك تفعيله لاحقاً من الإعدادات' }
-      }
-    ],
-    required: false,
-    isOptional: true,
-    defaultValue: false
-  },
-
-  // Question 3: Gender
+  // Question 2: Gender
   {
     id: 'gender',
     type: 'select',
     field: 'gender',
     question: {
-      en: 'What is your gender?',
-      ar: 'ما هو جنسك؟'
+      ar: 'ما هو جنسك؟',
+      en: 'Gender'
     },
     options: [
-      { id: 'male', label: { en: 'Male', ar: 'ذكر' }, icon: <Ionicons name="person" size={20} color="#4F2396" /> },
-      { id: 'female', label: { en: 'Female', ar: 'أنثى' }, icon: <Ionicons name="person-outline" size={20} color="#4F2396" /> }
+      { id: 'male', label: { ar: 'رجل', en: 'Male' } },
+      { id: 'female', label: { ar: 'امرأة', en: 'Female' } }
     ],
-    required: true
+    required: true,
+    showBack: true
   },
 
-  // Question 4: Age
+  // Question 3: Age
   {
     id: 'age',
     type: 'number',
     field: 'age',
     question: {
-      en: 'What is your age?',
-      ar: 'كم عمرك؟'
-    },
-    helpText: {
-      en: 'You must be 18 years or older',
-      ar: 'يجب أن يكون عمرك 18 سنة أو أكثر'
+      ar: 'كم تبلغ من العمر؟',
+      en: 'Age'
     },
     placeholder: {
-      en: 'Enter your age',
-      ar: 'أدخل عمرك'
+      ar: 'أدخل عمرك',
+      en: 'Enter your age'
+    },
+    maxLength: 2,
+    keyboardType: 'number-pad',
+    validation: {
+      min: 18,
+      max: 77
+    },
+    required: true
+  },
+
+  // Question 4: Weight
+  {
+    id: 'weight',
+    type: 'number',
+    field: 'weight',
+    question: {
+      ar: 'كم وزنك؟',
+      en: 'Weight (kg)'
+    },
+    placeholder: {
+      ar: 'أدخل وزنك بالكيلوجرام',
+      en: 'Enter your weight in kg'
     },
     maxLength: 3,
     keyboardType: 'number-pad',
     validation: {
-      min: 18,
-      max: 100
+      min: 30,
+      max: 119
     },
     required: true
   },
@@ -142,383 +113,475 @@ export const ONBOARDING_QUESTIONS = [
     type: 'number',
     field: 'height',
     question: {
-      en: 'What is your height?',
-      ar: 'ما هو طولك؟'
-    },
-    helpText: {
-      en: 'Enter your height in centimeters',
-      ar: 'أدخل طولك بالسنتيمتر'
+      ar: 'كم طولك؟',
+      en: 'Height (cm)'
     },
     placeholder: {
-      en: 'Height in cm',
-      ar: 'الطول بالسنتيمتر'
+      ar: 'أدخل طولك بالسنتيمتر',
+      en: 'Enter your height in cm'
     },
     maxLength: 3,
     keyboardType: 'number-pad',
     validation: {
-      min: 140,
-      max: 230
+      min: 120,
+      max: 199
     },
     required: true
   },
 
-  // Question 6: Weight
-  {
-    id: 'weight',
-    type: 'number',
-    field: 'weight',
-    question: {
-      en: 'What is your weight?',
-      ar: 'ما هو وزنك؟'
-    },
-    helpText: {
-      en: 'Enter your weight in kilograms',
-      ar: 'أدخل وزنك بالكيلوجرام'
-    },
-    placeholder: {
-      en: 'Weight in kg',
-      ar: 'الوزن بالكيلوجرام'
-    },
-    maxLength: 3,
-    keyboardType: 'number-pad',
-    validation: {
-      min: 40,
-      max: 200
-    },
-    required: true
-  },
-
-  // Question 7: Current Residence Country
-  {
-    id: 'residenceCountry',
-    type: 'country-picker',
-    field: 'residenceCountry',
-    question: {
-      en: 'Which country do you currently live in?',
-      ar: 'في أي دولة تعيش حالياً؟'
-    },
-    placeholder: {
-      en: 'Select Country',
-      ar: 'اختر الدولة'
-    },
-    required: true,
-    getOptions: () => getCountriesList()
-  },
-
-  // Question 8: Nationality
-  {
-    id: 'nationality',
-    type: 'country-picker',
-    field: 'nationality',
-    question: {
-      en: 'What is your nationality?',
-      ar: 'ما هي جنسيتك؟'
-    },
-    placeholder: {
-      en: 'Select nationality',
-      ar: 'اختر الجنسية'
-    },
-    required: true,
-    getOptions: () => getCountriesList()
-  },
-
-  // Question 9: Marital Status
-  {
-    id: 'maritalStatus',
-    type: 'select-with-conditional',
-    field: 'maritalStatus',
-    question: {
-      en: 'What is your marital status?',
-      ar: 'ما هي حالتك الاجتماعية؟'
-    },
-    options: [
-      { id: 'single', label: { en: 'Single', ar: 'أعزب/عزباء' } },
-      { id: 'divorced', label: { en: 'Divorced', ar: 'مطلق/مطلقة' } },
-      { id: 'widowed', label: { en: 'Widowed', ar: 'أرمل/أرملة' } }
-    ],
-    conditionalField: {
-      field: 'hasChildren',
-      condition: (value) => value === 'divorced' || value === 'widowed',
-      question: {
-        en: 'Do you have children?',
-        ar: 'هل لديك أطفال؟'
-      },
-      options: [
-        { id: true, label: { en: 'Yes', ar: 'نعم' } },
-        { id: false, label: { en: 'No', ar: 'لا' } }
-      ]
-    },
-    required: true
-  },
-
-  // Question 10: Religion
-  {
-    id: 'religion',
-    type: 'select',
-    field: 'religion',
-    question: {
-      en: 'What is your religion?',
-      ar: 'ما هو دينك؟'
-    },
-    options: [
-      { id: 'muslim', label: { en: 'Muslim', ar: 'مسلم/مسلمة' } },
-      { id: 'christian', label: { en: 'Christian', ar: 'مسيحي/مسيحية' } },
-      { id: 'other', label: { en: 'Other', ar: 'أخرى' } }
-    ],
-    required: true,
-    nextQuestion: (value) => value === 'muslim' ? 'madhhab' : 'religiosity'
-  },
-
-  // Question 11: Madhhab (Islamic School of Thought)
-  {
-    id: 'madhhab',
-    type: 'select',
-    field: 'madhhab',
-    question: {
-      en: 'What is your Islamic school of thought?',
-      ar: 'ما هو مذهبك الفقهي؟'
-    },
-    options: [
-      { id: 'sunni', label: { en: 'Sunni', ar: 'سني' } },
-      { id: 'shia', label: { en: 'Shia', ar: 'شيعي' } },
-      { id: 'other', label: { en: 'Other', ar: 'أخرى' } }
-    ],
-    required: true,
-    showOnlyIf: (onboardingData) => onboardingData.religion === 'muslim'
-  },
-
-  // Question 12: Religiosity Level
-  {
-    id: 'religiosity',
-    type: 'select',
-    field: 'religiosityLevel',
-    question: {
-      en: 'How would you describe your religiosity level?',
-      ar: 'كيف تصف مستوى التزامك الديني؟'
-    },
-    options: [
-      { id: 'very_religious', label: { en: 'Very religious', ar: 'ملتزم جداً' } },
-      { id: 'moderately_religious', label: { en: 'Moderately religious', ar: 'ملتزم بشكل معتدل' } },
-      { id: 'somewhat_religious', label: { en: 'Somewhat religious', ar: 'ملتزم نوعاً ما' } },
-      { id: 'not_religious', label: { en: 'Not religious', ar: 'غير ملتزم' } }
-    ],
-    required: true
-  },
-
-  // Question 13: Prayer Habit (Optional)
-  {
-    id: 'prayer',
-    type: 'select',
-    field: 'prayerHabit',
-    question: {
-      en: 'How often do you pray?',
-      ar: 'كم مرة تصلي؟'
-    },
-    options: [
-      { id: 'always', label: { en: 'Always (5 times daily)', ar: 'دائماً (5 مرات يومياً)' } },
-      { id: 'usually', label: { en: 'Usually', ar: 'عادةً' } },
-      { id: 'sometimes', label: { en: 'Sometimes', ar: 'أحياناً' } },
-      { id: 'rarely', label: { en: 'Rarely', ar: 'نادراً' } },
-      { id: 'never', label: { en: 'Never', ar: 'أبداً' } }
-    ],
-    required: false,
-    isOptional: true
-  },
-
-  // Question 14: Education Level
+  // Question 6: Education Level
   {
     id: 'education',
     type: 'select',
     field: 'educationLevel',
     question: {
-      en: 'What is your education level?',
-      ar: 'ما هو مستواك التعليمي؟'
+      ar: 'ما هو مستواك العلمي؟',
+      en: 'Education Level'
     },
     options: [
-      { id: 'high_school', label: { en: 'High School', ar: 'ثانوية عامة' } },
-      { id: 'diploma', label: { en: 'Diploma', ar: 'دبلوم' } },
-      { id: 'bachelors', label: { en: "Bachelor's Degree", ar: 'بكالوريوس' } },
-      { id: 'masters', label: { en: "Master's Degree", ar: 'ماجستير' } },
-      { id: 'phd', label: { en: 'PhD', ar: 'دكتوراه' } },
-      { id: 'other', label: { en: 'Other', ar: 'أخرى' } }
+      { id: 'below_high_school', label: { ar: 'أقل من الثانوية العامة', en: 'Below High School' } },
+      { id: 'diploma', label: { ar: 'تعليم متوسط/معهد', en: 'Diploma/Institute' } },
+      { id: 'bachelors', label: { ar: 'شهادة جامعية', en: "Bachelor's" } },
+      { id: 'masters', label: { ar: 'ماجستير', en: "Master's" } },
+      { id: 'phd', label: { ar: 'دكتوراه', en: 'PhD' } }
     ],
     required: true
   },
 
-  // Question 15: Work Status (Optional)
+  // Question 7: Work Status
   {
     id: 'work',
-    type: 'text',
+    type: 'select',
     field: 'workStatus',
     question: {
-      en: 'What do you do for work?',
-      ar: 'ما هو عملك؟'
+      ar: 'ما هي درجتك الوظيفية؟',
+      en: 'Work Status'
+    },
+    options: [
+      { id: 'employee', label: { ar: 'موظف', en: 'Employee' } },
+      { id: 'senior_employee', label: { ar: 'موظف برتبة عالية', en: 'Senior Employee' } },
+      { id: 'manager', label: { ar: 'مدير', en: 'Manager' } },
+      { id: 'unemployed', label: { ar: 'عاطل عن العمل', en: 'Unemployed' } },
+      { id: 'retired', label: { ar: 'متقاعد', en: 'Retired' } },
+      { id: 'prefer_not_say', label: { ar: 'أفضل عدم الإجابة', en: 'Prefer not to say' } }
+    ],
+    required: true
+  },
+
+  // Question 8: Enable Location (Optional)
+  {
+    id: 'location',
+    type: 'select',
+    field: 'enableLocation',
+    question: {
+      ar: 'موقع الـGPS يستخدم فقط للحصول على ملفات تطابق قريبة',
+      en: 'Enable GPS Location'
+    },
+    helpText: {
+      ar: 'الموقع يساعد في العثور على أشخاص قريبين منك',
+      en: 'Location helps find people near you'
+    },
+    options: [
+      { id: true, label: { ar: 'تمكين الـGPS (ينصح بشدة)', en: 'Enable GPS (recommended)' } },
+      { id: false, label: { ar: 'لاحقًا', en: 'Later' } }
+    ],
+    required: false,
+    isOptional: true,
+    defaultValue: false
+  },
+
+  // Question 9: Nationality
+  {
+    id: 'nationality',
+    type: 'country-picker',
+    field: 'nationality',
+    question: {
+      ar: 'ما هي جنسيتك؟',
+      en: 'Nationality'
     },
     placeholder: {
-      en: 'Example: Engineer, Teacher, Student...',
-      ar: 'مثال: مهندس، معلم، طالب...'
+      ar: 'اختر الجنسية',
+      en: 'Select nationality'
     },
+    required: true,
+    getOptions: () => getCountriesList()
+  },
+
+  // Question 10: Residence Country
+  {
+    id: 'residenceCountry',
+    type: 'country-picker',
+    field: 'residenceCountry',
+    question: {
+      ar: 'ما هو بلد إقامتك؟',
+      en: 'Country of Residence'
+    },
+    placeholder: {
+      ar: 'اختر البلد',
+      en: 'Select country'
+    },
+    required: true,
+    getOptions: () => getCountriesList()
+  },
+
+  // Question 11: Religion
+  {
+    id: 'religion',
+    type: 'select',
+    field: 'religion',
+    question: {
+      ar: 'ما دينك؟',
+      en: 'Religion'
+    },
+    options: [
+      { id: 'muslim', label: { ar: 'مسلم', en: 'Muslim' } },
+      { id: 'muslim_sunni', label: { ar: 'مسلم سني', en: 'Muslim Sunni' } },
+      { id: 'muslim_shia', label: { ar: 'مسلم شيعي', en: 'Muslim Shia' } },
+      { id: 'other', label: { ar: 'دين آخر', en: 'Other Religion' } }
+    ],
+    required: true
+  },
+
+  // Question 12: Prayer Habit (Optional)
+  {
+    id: 'prayer',
+    type: 'select',
+    field: 'prayerHabit',
+    question: {
+      ar: 'متى تصلي؟',
+      en: 'Prayer Habit'
+    },
+    options: [
+      { id: 'daily', label: { ar: 'يوميًا', en: 'Daily' } },
+      { id: 'weekly', label: { ar: 'أسبوعيًا', en: 'Weekly' } },
+      { id: 'sometimes', label: { ar: 'أحيانًا', en: 'Sometimes' } },
+      { id: 'religious_occasions', label: { ar: 'في المناسبات الدينية', en: 'On religious occasions' } },
+      { id: 'never', label: { ar: 'أبدًا', en: 'Never' } }
+    ],
     required: false,
     isOptional: true
   },
 
-  // Question 16: Marriage Type
+  // Question 13: Marital Status
   {
-    id: 'marriageType',
+    id: 'maritalStatus',
     type: 'select',
-    field: 'marriageType',
+    field: 'maritalStatus',
     question: {
-      en: 'What type of marriage are you looking for?',
-      ar: 'ما نوع الزواج الذي تبحث عنه؟'
+      ar: 'ما هي حالتك الاجتماعية؟',
+      en: 'Marital Status'
     },
     options: [
-      { id: 'traditional', label: { en: 'Traditional', ar: 'تقليدي' } },
-      { id: 'modern', label: { en: 'Modern', ar: 'عصري' } },
-      { id: 'both', label: { en: 'Both', ar: 'كلاهما' } }
+      { id: 'single', label: { ar: 'أعزب', en: 'Single' } },
+      { id: 'divorced_no_children', label: { ar: 'مطلق من دون أطفال', en: 'Divorced without children' } },
+      { id: 'divorced_with_children', label: { ar: 'مطلق مع أطفال', en: 'Divorced with children' } },
+      { id: 'widowed_no_children', label: { ar: 'أرمل من دون أطفال', en: 'Widowed without children' } },
+      { id: 'widowed_with_children', label: { ar: 'أرمل مع أطفال', en: 'Widowed with children' } },
+      { id: 'married', label: { ar: 'متزوج', en: 'Married' } }
     ],
     required: true
   },
 
-  // Question 17: Marriage Plan
+  // Question 14: Marriage Types You Accept (Multi-select, max 3)
+  {
+    id: 'marriageTypes',
+    type: 'multi-select',
+    field: 'marriageTypes',
+    question: {
+      ar: 'أنواع الزواج التي أقبل بها',
+      en: 'Marriage Types You Accept'
+    },
+    subtitle: {
+      ar: '(اختر حتى 3 خيارات)',
+      en: '(Select up to 3)'
+    },
+    options: [
+      { id: 'traditional', label: { ar: 'عادي', en: 'Traditional' } },
+      { id: 'civil', label: { ar: 'مدني (غير ديني)', en: 'Civil (non-religious)' } },
+      { id: 'polygamy', label: { ar: 'تعدد', en: 'Polygamy' } },
+      { id: 'misyar', label: { ar: 'مسيار', en: 'Misyar' } },
+      { id: 'doesnt_matter', label: { ar: 'لا يهمني', en: "Doesn't matter" } }
+    ],
+    required: true,
+    minSelection: 1,
+    maxSelection: 3
+  },
+
+  // Question 15: Marriage Plan
   {
     id: 'marriagePlan',
     type: 'select',
     field: 'marriagePlan',
     question: {
-      en: 'When are you planning to get married?',
-      ar: 'متى تخطط للزواج؟'
+      ar: 'متى تخطط أن تتزوج؟',
+      en: 'Marriage Plan'
     },
     options: [
-      { id: 'within_6_months', label: { en: 'Within 6 months', ar: 'خلال 6 أشهر' } },
-      { id: 'within_year', label: { en: 'Within a year', ar: 'خلال سنة' } },
-      { id: 'within_2_years', label: { en: 'Within 2 years', ar: 'خلال سنتين' } },
-      { id: 'not_sure', label: { en: 'Not sure yet', ar: 'لست متأكداً بعد' } }
+      { id: 'asap', label: { ar: 'أرغب بالزواج بأسرع ما يمكن', en: 'As soon as possible' } },
+      { id: 'need_time', label: { ar: 'أحتاج لبعض الوقت', en: 'I need some time' } },
+      { id: 'no_hurry', label: { ar: 'لست في عجلة من أمري', en: "I'm not in a hurry" } }
     ],
     required: true
   },
 
-  // Question 18: Kids Preference
+  // Question 16: Residence After Marriage
   {
-    id: 'kids',
+    id: 'residenceAfterMarriage',
     type: 'select',
-    field: 'kidsPreference',
+    field: 'residenceAfterMarriage',
     question: {
-      en: 'Do you want children in the future?',
-      ar: 'هل تريد إنجاب أطفال في المستقبل؟'
+      ar: 'أين تخطط أن تسكن بعد الزواج؟',
+      en: 'Residence After Marriage'
     },
     options: [
-      { id: 'yes', label: { en: 'Yes', ar: 'نعم' } },
-      { id: 'no', label: { en: 'No', ar: 'لا' } },
-      { id: 'not_sure', label: { en: 'Not sure', ar: 'لست متأكداً' } }
+      { id: 'own_home', label: { ar: 'في منزلي الخاص', en: 'My own home' } },
+      { id: 'parents_home', label: { ar: 'في منزل أهلي', en: 'With my parents' } },
+      { id: 'parents_temporary', label: { ar: 'في منزل أهلي مؤقتًا', en: 'With my parents (temporary)' } },
+      { id: 'undecided', label: { ar: 'لم أقرر بعد', en: 'Undecided' } }
     ],
     required: true
   },
 
-  // Question 19: Chat Languages (Multi-select)
-  {
-    id: 'languages',
-    type: 'multi-select',
-    field: 'chatLanguages',
-    question: {
-      en: 'What languages do you speak?',
-      ar: 'ما اللغات التي تتحدث بها؟'
-    },
-    subtitle: {
-      en: '(Select one or more)',
-      ar: '(اختر واحدة أو أكثر)'
-    },
-    options: [
-      { id: 'arabic', label: { en: 'Arabic', ar: 'العربية' } },
-      { id: 'english', label: { en: 'English', ar: 'الإنجليزية' } },
-      { id: 'french', label: { en: 'French', ar: 'الفرنسية' } },
-      { id: 'urdu', label: { en: 'Urdu', ar: 'الأردية' } },
-      { id: 'turkish', label: { en: 'Turkish', ar: 'التركية' } },
-      { id: 'malay', label: { en: 'Malay', ar: 'الماليزية' } }
-    ],
-    required: true,
-    minSelection: 1
-  },
-
-  // Question 20: Smoking (Optional)
+  // Question 17: Smoking (Optional)
   {
     id: 'smoking',
     type: 'select',
     field: 'smoking',
     question: {
-      en: 'Do you smoke?',
-      ar: 'هل تدخن؟'
+      ar: 'هل تدخن؟',
+      en: 'Smoking'
     },
     options: [
-      { id: 'yes', label: { en: 'Yes', ar: 'نعم' } },
-      { id: 'no', label: { en: 'No', ar: 'لا' } },
-      { id: 'occasionally', label: { en: 'Occasionally', ar: 'أحياناً' } }
+      { id: 'yes', label: { ar: 'نعم', en: 'Yes' } },
+      { id: 'sometimes', label: { ar: 'أحيانًا', en: 'Sometimes' } },
+      { id: 'no', label: { ar: 'لا', en: 'No' } }
     ],
     required: false,
     isOptional: true
   },
 
-  // Question 21: Photos (Special type)
+  // Question 18: Tribe Affiliation (Optional)
+  {
+    id: 'tribe',
+    type: 'select',
+    field: 'tribeAffiliation',
+    question: {
+      ar: 'هل تنتمي إلى قبيلة؟',
+      en: 'Do you belong to a tribe?'
+    },
+    options: [
+      { id: 'yes', label: { ar: 'نعم', en: 'Yes' } },
+      { id: 'no', label: { ar: 'لا', en: 'No' } }
+    ],
+    required: false,
+    isOptional: true
+  },
+
+  // Question 19: Skin Tone
+  {
+    id: 'skinTone',
+    type: 'select',
+    field: 'skinTone',
+    question: {
+      ar: 'ما لون بشرتك؟',
+      en: 'Skin Tone'
+    },
+    options: [
+      { id: 'white', label: { ar: 'أبيض', en: 'White' } },
+      { id: 'light_wheat', label: { ar: 'قمحي فاتح', en: 'Light Wheat' } },
+      { id: 'wheat', label: { ar: 'قمحي', en: 'Wheat' } },
+      { id: 'bronze', label: { ar: 'برونزي', en: 'Bronze' } },
+      { id: 'light_brown', label: { ar: 'أسمر فاتح', en: 'Light Brown' } },
+      { id: 'dark_brown', label: { ar: 'أسمر غامق', en: 'Dark Brown' } }
+    ],
+    required: true
+  },
+
+  // Question 20: Chat Languages (Multi-select, max 3)
+  {
+    id: 'languages',
+    type: 'multi-select',
+    field: 'chatLanguages',
+    question: {
+      ar: 'في الدردشة أفضل استخدام اللغة',
+      en: 'Preferred Chat Languages'
+    },
+    subtitle: {
+      ar: '(اختر حتى 3 لغات)',
+      en: '(Select up to 3 languages)'
+    },
+    options: [
+      { id: 'arabic', label: { ar: 'العربية', en: 'Arabic' } },
+      { id: 'english', label: { ar: 'الإنجليزية', en: 'English' } },
+      { id: 'french', label: { ar: 'الفرنسية', en: 'French' } },
+      { id: 'spanish', label: { ar: 'الإسبانية', en: 'Spanish' } },
+      { id: 'turkish', label: { ar: 'التركية', en: 'Turkish' } },
+      { id: 'indonesian', label: { ar: 'الإندونيسية', en: 'Indonesian' } },
+      { id: 'urdu', label: { ar: 'الأردية', en: 'Urdu' } },
+      { id: 'malay', label: { ar: 'الماليزية', en: 'Malay' } }
+    ],
+    required: true,
+    minSelection: 1,
+    maxSelection: 3
+  },
+
+  // Question 21: Income Level
+  {
+    id: 'income',
+    type: 'select',
+    field: 'incomeLevel',
+    question: {
+      ar: 'ما مستوى دخلك المادي؟',
+      en: 'Income Level'
+    },
+    options: [
+      { id: 'high', label: { ar: 'مرتفع', en: 'High' } },
+      { id: 'medium', label: { ar: 'متوسط', en: 'Medium' } },
+      { id: 'low', label: { ar: 'منخفض', en: 'Low' } },
+      { id: 'no_income', label: { ar: 'لا دخل مادي', en: 'No income' } }
+    ],
+    required: true
+  },
+
+  // Question 22: Children Timing Preference
+  {
+    id: 'childrenTiming',
+    type: 'select',
+    field: 'childrenTiming',
+    question: {
+      ar: 'بالنسبة للإنجاب بعد الزواج',
+      en: 'Children (Timing)'
+    },
+    options: [
+      { id: 'asap', label: { ar: 'في أقرب وقت', en: 'As soon as possible' } },
+      { id: 'after_two_years', label: { ar: 'بعد سنتين على الأقل', en: 'After at least two years' } },
+      { id: 'depends', label: { ar: 'حسب الظروف', en: 'Depends on circumstances' } },
+      { id: 'no_children', label: { ar: 'لا أريد الإنجاب', en: "I don't want children" } }
+    ],
+    required: true
+  },
+
+  // Question 23: Allow Wife to Work/Study (Men only)
+  {
+    id: 'wifeWorkStudy',
+    type: 'select',
+    field: 'allowWifeWorkStudy',
+    question: {
+      ar: 'هل تسمح لزوجتك بالعمل أو الدراسة؟',
+      en: 'Allow Wife to Work/Study?'
+    },
+    options: [
+      { id: 'yes', label: { ar: 'نعم', en: 'Yes' } },
+      { id: 'yes_from_home', label: { ar: 'نعم، ولكن من المنزل', en: 'Yes, but from home' } },
+      { id: 'depends', label: { ar: 'حسب الظروف', en: 'Depends' } },
+      { id: 'no', label: { ar: 'لا', en: 'No' } }
+    ],
+    required: true,
+    showOnlyIf: (onboardingData) => onboardingData.gender === 'male'
+  },
+
+  // Question 24: Health Status (Multi-select, max 2)
+  {
+    id: 'health',
+    type: 'multi-select',
+    field: 'healthStatus',
+    question: {
+      ar: 'كيف تصف حالتك الصحية؟',
+      en: 'Health Status'
+    },
+    subtitle: {
+      ar: '(اختر حتى خيارين)',
+      en: '(Select up to 2)'
+    },
+    options: [
+      { id: 'chronic_illness', label: { ar: 'أعاني من مرض مزمن', en: 'Chronic illness' } },
+      { id: 'special_needs', label: { ar: 'من ذوي الاحتياجات الخاصة', en: 'Special needs' } },
+      { id: 'infertile', label: { ar: 'عقيم', en: 'Infertile' } },
+      { id: 'good_health', label: { ar: 'بصحة جيدة', en: 'Good health' } }
+    ],
+    required: true,
+    minSelection: 1,
+    maxSelection: 2
+  },
+
+  // Question 25: Photos (Optional)
   {
     id: 'photos',
     type: 'photo-upload',
     field: 'photos',
     question: {
-      en: 'Add your photos',
-      ar: 'أضف صورك الشخصية'
+      ar: 'الصور',
+      en: 'Photos'
     },
     subtitle: {
-      en: '(Optional - You can add up to 6 photos)',
-      ar: '(اختياري - يمكنك إضافة حتى 6 صور)'
+      ar: '(اختياري - يمكنك إضافة حتى 6 صور)',
+      en: '(Optional - You can add up to 6 photos)'
     },
     helpText: {
-      en: 'Note: Profile photos help increase your matching chances',
-      ar: 'ملاحظة: الصور الشخصية تساعد في زيادة فرص التوافق'
+      ar: 'الصور الشخصية تساعد في زيادة فرص التوافق',
+      en: 'Profile photos help increase your matching chances'
     },
     skipText: {
-      en: 'Skip for now, add photos later',
-      ar: 'تخطي الآن وإضافة الصور لاحقاً'
+      ar: 'لاحقًا',
+      en: 'Later'
     },
     maxPhotos: 6,
     required: false,
     isOptional: true
   },
 
-  // Question 22: About Me
+  // Question 26: About Me
   {
     id: 'about',
     type: 'textarea',
     field: 'aboutMe',
     question: {
-      en: 'Write about yourself',
-      ar: 'اكتب عن نفسك'
+      ar: 'وصفي — صف نفسك',
+      en: 'About Me'
     },
     placeholder: {
-      en: "Example: I'm a calm person, I love reading and sports...",
-      ar: 'مثال: أنا شخص هادئ، أحب القراءة والرياضة...'
+      ar: 'أخبرنا عن نفسك...',
+      en: 'Tell us about yourself...'
     },
-    maxLength: 500,
+    maxLength: 250,
     multiline: true,
-    minHeight: 150,
-    required: true
+    minHeight: 120,
+    required: true,
+    validation: {
+      minLength: 80,
+      maxLength: 250,
+      message: {
+        ar: 'يجب أن يكون الوصف بين 80 و 250 حرفًا',
+        en: 'Description must be between 80 and 250 characters'
+      }
+    }
   },
 
-  // Question 23: Ideal Partner
+  // Question 27: Ideal Partner
   {
     id: 'idealPartner',
     type: 'textarea',
     field: 'idealPartner',
     question: {
-      en: 'Describe your ideal partner',
-      ar: 'صف شريك حياتك المثالي'
+      ar: 'وصف الشريكة المثالية',
+      en: 'Ideal Partner'
     },
     placeholder: {
-      en: 'Example: I\'m looking for someone who is kind, caring...',
-      ar: 'مثال: أبحث عن شخص طيب القلب، حنون...'
+      ar: 'صف شريك حياتك المثالي...',
+      en: 'Describe your ideal partner...'
     },
-    maxLength: 500,
+    maxLength: 250,
     multiline: true,
-    minHeight: 150,
-    required: true
+    minHeight: 120,
+    required: true,
+    validation: {
+      minLength: 80,
+      maxLength: 250,
+      message: {
+        ar: 'يجب أن يكون الوصف بين 80 و 250 حرفًا',
+        en: 'Description must be between 80 and 250 characters'
+      }
+    }
   }
 ];
 
@@ -532,11 +595,11 @@ export const getQuestionByIndex = (index) => {
   return ONBOARDING_QUESTIONS[index];
 };
 
-// Total number of questions (23 questions)
+// Total number of questions (27 questions)
 export const TOTAL_QUESTIONS = ONBOARDING_QUESTIONS.length;
 
 // Get next question based on current question and answer
-export const getNextQuestionId = (currentQuestion, answer, onboardingData) => {
+export const getNextQuestionId = (currentQuestion, answer, onboardingData = {}) => {
   const currentIndex = ONBOARDING_QUESTIONS.findIndex(q => q.id === currentQuestion.id);
 
   // Check if current question has custom next logic
@@ -551,8 +614,14 @@ export const getNextQuestionId = (currentQuestion, answer, onboardingData) => {
     const nextQuestion = ONBOARDING_QUESTIONS[nextIndex];
 
     if (nextQuestion.showOnlyIf && typeof nextQuestion.showOnlyIf === 'function') {
-      if (nextQuestion.showOnlyIf(onboardingData)) {
-        return nextQuestion.id;
+      try {
+        // Safe call with null checks
+        if (nextQuestion.showOnlyIf(onboardingData || {})) {
+          return nextQuestion.id;
+        }
+      } catch (error) {
+        console.error('Error in showOnlyIf for question:', nextQuestion.id, error);
+        // Skip this question on error
       }
       nextIndex++;
     } else {
@@ -564,7 +633,7 @@ export const getNextQuestionId = (currentQuestion, answer, onboardingData) => {
 };
 
 // Get previous question (skips hidden questions)
-export const getPreviousQuestionId = (currentQuestion, onboardingData) => {
+export const getPreviousQuestionId = (currentQuestion, onboardingData = {}) => {
   const currentIndex = ONBOARDING_QUESTIONS.findIndex(q => q.id === currentQuestion.id);
 
   let prevIndex = currentIndex - 1;
@@ -572,8 +641,14 @@ export const getPreviousQuestionId = (currentQuestion, onboardingData) => {
     const prevQuestion = ONBOARDING_QUESTIONS[prevIndex];
 
     if (prevQuestion.showOnlyIf && typeof prevQuestion.showOnlyIf === 'function') {
-      if (prevQuestion.showOnlyIf(onboardingData)) {
-        return prevQuestion.id;
+      try {
+        // Safe call with null checks
+        if (prevQuestion.showOnlyIf(onboardingData || {})) {
+          return prevQuestion.id;
+        }
+      } catch (error) {
+        console.error('Error in showOnlyIf for question:', prevQuestion.id, error);
+        // Skip this question on error
       }
       prevIndex--;
     } else {

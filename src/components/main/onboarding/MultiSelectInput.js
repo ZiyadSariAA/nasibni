@@ -13,11 +13,14 @@ const MultiSelectInput = ({ options, value = [], onChange, isArabic }) => {
     return null;
   }
 
+  // Ensure value is always an array (fix for null values)
+  const selectedValues = Array.isArray(value) ? value : [];
+
   const toggleOption = (optionId) => {
-    if (value.includes(optionId)) {
-      onChange(value.filter(id => id !== optionId));
+    if (selectedValues.includes(optionId)) {
+      onChange(selectedValues.filter(id => id !== optionId));
     } else {
-      onChange([...value, optionId]);
+      onChange([...selectedValues, optionId]);
     }
   };
 
@@ -25,7 +28,7 @@ const MultiSelectInput = ({ options, value = [], onChange, isArabic }) => {
     <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
       <View className="gap-3">
         {options.map((option) => {
-          const isSelected = value.includes(option.id);
+          const isSelected = selectedValues.includes(option.id);
 
           return (
             <TouchableOpacity
