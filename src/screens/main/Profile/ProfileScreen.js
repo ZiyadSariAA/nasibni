@@ -40,8 +40,17 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const handleSettings = () => {
-    // TODO: Navigate to settings screen
-    console.log('Settings');
+    console.log('⚙️ Opening Settings...');
+    // Use parent navigation to access Stack screens from Tab screen
+    const parentNav = navigation.getParent();
+    if (parentNav) {
+      console.log('✅ Using parent navigator');
+      parentNav.navigate('Settings');
+    } else {
+      // Fallback to direct navigation
+      console.log('⚠️ No parent navigator, using direct navigation');
+      navigation.navigate('Settings');
+    }
   };
 
   const handleLogout = async () => {
@@ -101,10 +110,10 @@ export default function ProfileScreen({ navigation }) {
       not_very_religious: { ar: 'غير متدين كثيرًا', en: 'Not Very Religious' }
     },
     prayerHabit: {
-      always: { ar: 'دائمًا', en: 'Always' },
-      mostly: { ar: 'غالبًا', en: 'Mostly' },
+      daily: { ar: 'يوميًا', en: 'Daily' },
+      weekly: { ar: 'أسبوعيًا', en: 'Weekly' },
       sometimes: { ar: 'أحيانًا', en: 'Sometimes' },
-      rarely: { ar: 'نادرًا', en: 'Rarely' },
+      religious_occasions: { ar: 'في المناسبات الدينية', en: 'On religious occasions' },
       never: { ar: 'أبدًا', en: 'Never' }
     },
     educationLevel: {
@@ -122,21 +131,23 @@ export default function ProfileScreen({ navigation }) {
       retired: { ar: 'متقاعد', en: 'Retired' },
       prefer_not_say: { ar: 'أفضل عدم الإجابة', en: 'Prefer not to say' }
     },
-    marriageType: {
+    marriageTypes: {
       traditional: { ar: 'عادي', en: 'Traditional' },
-      polygamy: { ar: 'تعدد زوجات', en: 'Polygamy' },
-      misyar: { ar: 'مسيار', en: 'Misyar' }
+      civil: { ar: 'مدني (غير ديني)', en: 'Civil (non-religious)' },
+      polygamy: { ar: 'تعدد', en: 'Polygamy' },
+      misyar: { ar: 'مسيار', en: 'Misyar' },
+      doesnt_matter: { ar: 'لا يهمني', en: "Doesn't matter" }
     },
     marriagePlan: {
-      asap: { ar: 'في أقرب وقت ممكن', en: 'ASAP' },
-      within_year: { ar: 'خلال سنة', en: 'Within a year' },
-      few_years: { ar: 'خلال بضع سنوات', en: 'In a few years' },
-      no_rush: { ar: 'لا عجلة', en: 'No rush' }
+      asap: { ar: 'في أقرب وقت ممكن', en: 'As soon as possible' },
+      need_time: { ar: 'أحتاج لبعض الوقت', en: 'I need some time' },
+      no_hurry: { ar: 'لست في عجلة من أمري', en: "I'm not in a hurry" }
     },
-    kidsPreference: {
-      want_kids: { ar: 'أريد أطفالاً', en: 'Want kids' },
-      no_kids: { ar: 'لا أريد أطفالاً', en: "Don't want kids" },
-      open: { ar: 'منفتح', en: 'Open to discussion' }
+    childrenTiming: {
+      asap: { ar: 'في أقرب وقت', en: 'As soon as possible' },
+      after_two_years: { ar: 'بعد سنتين على الأقل', en: 'After at least two years' },
+      depends: { ar: 'حسب الظروف', en: 'Depends on circumstances' },
+      no_children: { ar: 'لا أريد الإنجاب', en: "I don't want children" }
     },
     chatLanguages: {
       arabic: { ar: 'العربية', en: 'Arabic' },
@@ -144,12 +155,46 @@ export default function ProfileScreen({ navigation }) {
       french: { ar: 'الفرنسية', en: 'French' },
       spanish: { ar: 'الإسبانية', en: 'Spanish' },
       turkish: { ar: 'التركية', en: 'Turkish' },
-      urdu: { ar: 'الأردية', en: 'Urdu' }
+      urdu: { ar: 'الأردية', en: 'Urdu' },
+      indonesian: { ar: 'الإندونيسية', en: 'Indonesian' },
+      malay: { ar: 'الماليزية', en: 'Malay' }
     },
     smoking: {
       yes: { ar: 'نعم', en: 'Yes' },
       no: { ar: 'لا', en: 'No' },
       sometimes: { ar: 'أحيانًا', en: 'Sometimes' }
+    },
+    skinTone: {
+      white: { ar: 'أبيض', en: 'White' },
+      light_wheat: { ar: 'قمحي فاتح', en: 'Light Wheat' },
+      wheat: { ar: 'قمحي', en: 'Wheat' },
+      bronze: { ar: 'برونزي', en: 'Bronze' },
+      light_brown: { ar: 'أسمر فاتح', en: 'Light Brown' },
+      dark_brown: { ar: 'أسمر غامق', en: 'Dark Brown' }
+    },
+    incomeLevel: {
+      high: { ar: 'مرتفع', en: 'High' },
+      medium: { ar: 'متوسط', en: 'Medium' },
+      low: { ar: 'منخفض', en: 'Low' },
+      no_income: { ar: 'لا دخل مادي', en: 'No income' }
+    },
+    healthStatus: {
+      chronic_illness: { ar: 'أعاني من مرض مزمن', en: 'Chronic illness' },
+      special_needs: { ar: 'من ذوي الاحتياجات الخاصة', en: 'Special needs' },
+      infertile: { ar: 'عقيم', en: 'Infertile' },
+      good_health: { ar: 'بصحة جيدة', en: 'Good health' }
+    },
+    residenceAfterMarriage: {
+      own_home: { ar: 'في منزلي الخاص', en: 'My own home' },
+      parents_home: { ar: 'في منزل أهلي', en: 'With my parents' },
+      parents_temporary: { ar: 'في منزل أهلي مؤقتًا', en: 'With my parents (temporary)' },
+      undecided: { ar: 'لم أقرر بعد', en: 'Undecided' }
+    },
+    allowWifeWorkStudy: {
+      yes: { ar: 'نعم', en: 'Yes' },
+      yes_from_home: { ar: 'نعم، ولكن من المنزل', en: 'Yes, but from home' },
+      depends: { ar: 'حسب الظروف', en: 'Depends' },
+      no: { ar: 'لا', en: 'No' }
     }
   };
 
@@ -230,7 +275,10 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        scrollEventThrottle={16}
+        bounces={true}
+        overScrollMode="auto"
+        contentContainerStyle={{ paddingBottom: 100 }} // Fixed: Match other tabs (Home/People/Chats)
       >
         {/* Profile Header - Compact */}
         <View className="bg-white items-center py-6 mb-3">
@@ -308,6 +356,22 @@ export default function ProfileScreen({ navigation }) {
             label={isArabic ? 'الوزن' : 'Weight'}
             value={profileData?.weight ? `${profileData.weight} ${isArabic ? 'كجم' : 'kg'}` : null}
           />
+          {profileData?.skinTone && (
+            <InfoRow
+              icon="color-palette-outline"
+              label={isArabic ? 'لون البشرة' : 'Skin Tone'}
+              value={translateValue('skinTone', profileData?.skinTone)}
+            />
+          )}
+          {profileData?.tribeAffiliation !== undefined && (
+            <InfoRow
+              icon="people-outline"
+              label={isArabic ? 'الانتماء القبلي' : 'Tribe Affiliation'}
+              value={profileData?.tribeAffiliation ? 
+                (isArabic ? 'نعم' : 'Yes') : 
+                (isArabic ? 'لا' : 'No')}
+            />
+          )}
         </View>
 
         {/* 2. LOCATION & NATIONALITY */}
@@ -349,11 +413,13 @@ export default function ProfileScreen({ navigation }) {
             label={isArabic ? 'لديه أطفال' : 'Has Children'}
             value={profileData?.hasChildren === true ? (isArabic ? 'نعم' : 'Yes') : profileData?.hasChildren === false ? (isArabic ? 'لا' : 'No') : null}
           />
-          <InfoRow
-            icon="people-circle-outline"
-            label={isArabic ? 'تفضيل الأطفال' : 'Kids Preference'}
-            value={translateValue('kidsPreference', profileData?.kidsPreference)}
-          />
+          {profileData?.childrenTiming && (
+            <InfoRow
+              icon="time-outline"
+              label={isArabic ? 'وقت الإنجاب' : 'Children Timing'}
+              value={translateValue('childrenTiming', profileData?.childrenTiming)}
+            />
+          )}
         </View>
 
         {/* 4. RELIGION & PRACTICE */}
@@ -402,25 +468,73 @@ export default function ProfileScreen({ navigation }) {
           />
         </View>
 
-        {/* 6. MARRIAGE PREFERENCES */}
+        {/* 6. FINANCIAL INFORMATION */}
+        {profileData?.incomeLevel && (
+          <View className="bg-white mb-3 px-4">
+            <Text variant="h4" weight="bold" className="text-gray-900 py-4" style={{ textAlign: isArabic ? 'right' : 'left' }}>
+              {isArabic ? 'المعلومات المالية' : 'Financial Information'}
+            </Text>
+            
+            <InfoRow
+              icon="wallet-outline"
+              label={isArabic ? 'مستوى الدخل' : 'Income Level'}
+              value={translateValue('incomeLevel', profileData?.incomeLevel)}
+            />
+          </View>
+        )}
+
+        {/* 7. HEALTH & WELLNESS */}
+        {profileData?.healthStatus && (
+          <View className="bg-white mb-3 px-4">
+            <Text variant="h4" weight="bold" className="text-gray-900 py-4" style={{ textAlign: isArabic ? 'right' : 'left' }}>
+              {isArabic ? 'الصحة' : 'Health & Wellness'}
+            </Text>
+            
+            <InfoRow
+              icon="medkit-outline"
+              label={isArabic ? 'الحالة الصحية' : 'Health Status'}
+              value={translateArray('healthStatus', profileData?.healthStatus)}
+            />
+          </View>
+        )}
+
+        {/* 8. MARRIAGE PREFERENCES */}
         <View className="bg-white mb-3 px-4">
           <Text variant="h4" weight="bold" className="text-gray-900 py-4" style={{ textAlign: isArabic ? 'right' : 'left' }}>
             {isArabic ? 'تفضيلات الزواج' : 'Marriage Preferences'}
           </Text>
 
-          <InfoRow
-            icon="heart-outline"
-            label={isArabic ? 'نوع الزواج' : 'Marriage Type'}
-            value={translateValue('marriageType', profileData?.marriageType)}
-          />
-          <InfoRow
-            icon="calendar-outline"
-            label={isArabic ? 'خطة الزواج' : 'Marriage Plan'}
-            value={translateValue('marriagePlan', profileData?.marriagePlan)}
-          />
+          {profileData?.marriageTypes && (
+            <InfoRow
+              icon="heart-outline"
+              label={isArabic ? 'أنواع الزواج المقبولة' : 'Accepted Marriage Types'}
+              value={translateArray('marriageTypes', profileData?.marriageTypes)}
+            />
+          )}
+          {profileData?.marriagePlan && (
+            <InfoRow
+              icon="calendar-outline"
+              label={isArabic ? 'خطة الزواج' : 'Marriage Plan'}
+              value={translateValue('marriagePlan', profileData?.marriagePlan)}
+            />
+          )}
+          {profileData?.residenceAfterMarriage && (
+            <InfoRow
+              icon="home-outline"
+              label={isArabic ? 'مكان السكن بعد الزواج' : 'Residence After Marriage'}
+              value={translateValue('residenceAfterMarriage', profileData?.residenceAfterMarriage)}
+            />
+          )}
+          {profileData?.allowWifeWorkStudy && (
+            <InfoRow
+              icon="briefcase-outline"
+              label={isArabic ? 'عمل أو دراسة الزوجة' : 'Wife Work/Study'}
+              value={translateValue('allowWifeWorkStudy', profileData?.allowWifeWorkStudy)}
+            />
+          )}
         </View>
 
-        {/* 7. LIFESTYLE */}
+        {/* 9. LIFESTYLE */}
         <View className="bg-white mb-3 px-4">
           <Text variant="h4" weight="bold" className="text-gray-900 py-4" style={{ textAlign: isArabic ? 'right' : 'left' }}>
             {isArabic ? 'نمط الحياة' : 'Lifestyle'}
@@ -431,11 +545,13 @@ export default function ProfileScreen({ navigation }) {
             label={isArabic ? 'لغات التواصل' : 'Chat Languages'}
             value={translateArray('chatLanguages', profileData?.chatLanguages)}
           />
-          <InfoRow
-            icon="medkit-outline"
-            label={isArabic ? 'التدخين' : 'Smoking'}
-            value={translateValue('smoking', profileData?.smoking)}
-          />
+          {profileData?.smoking && (
+            <InfoRow
+              icon="medkit-outline"
+              label={isArabic ? 'التدخين' : 'Smoking'}
+              value={translateValue('smoking', profileData?.smoking)}
+            />
+          )}
         </View>
       </ScrollView>
     </View>

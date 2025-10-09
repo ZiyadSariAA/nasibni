@@ -6,6 +6,8 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../../config/firebase';
+import ProfileService from '../../../../services/ProfileService';
+import ConversationService from '../../../../services/ConversationService';
 
 // Default avatars
 const DEFAULT_AVATARS = {
@@ -65,6 +67,29 @@ export default function DetailedUserScreen({ route, navigation }) {
       ]).start();
     }
   }, [profile, loading, profileData]);
+
+  // Record profile view when screen opens
+  useEffect(() => {
+    const recordView = async () => {
+      try {
+        // Only record if:
+        // 1. User is authenticated
+        // 2. We have a profileId to view
+        // 3. Not viewing own profile
+        if (user?.uid && profileId && user.uid !== profileId) {
+          console.log('👁️ Recording profile view:', user.uid, '->', profileId);
+          await ProfileService.recordProfileView(user.uid, profileId);
+          console.log('✅ Profile view recorded successfully');
+        }
+      } catch (error) {
+        // Silent failure - don't show error to user
+        // Profile view tracking is not critical to UX
+        console.log('⚠️ Failed to record profile view (non-critical):', error.message);
+      }
+    };
+
+    recordView();
+  }, [user?.uid, profileId]);
 
   const loadProfile = async () => {
     try {
@@ -332,6 +357,9 @@ export default function DetailedUserScreen({ route, navigation }) {
 
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        bounces={true}
+        overScrollMode="auto"
         style={{
           opacity: fadeAnim,
           transform: [{ translateY: slideAnim }]
@@ -626,7 +654,32 @@ export default function DetailedUserScreen({ route, navigation }) {
 
         {/* Chat Button */}
         <TouchableOpacity
-          onPress={() => console.log('Open chat with:', profileId)}
+          onPress={async () => {
+            try {
+              console.log('💬 Starting chat with:', profileId);
+
+              // Create or get existing conversation
+              const result = await ConversationService.createConversation(user.uid, profileId);
+
+              if (result.success) {
+                // Navigate to chat room
+                navigation.navigate('ChatRoom', {
+                  conversationId: result.conversationId
+                });
+              } else {
+                Alert.alert(
+                  isArabic ? 'خطأ' : 'Error',
+                  result.error || (isArabic ? 'فشل بدء المحادثة' : 'Failed to start conversation')
+                );
+              }
+            } catch (error) {
+              console.error('Error starting chat:', error);
+              Alert.alert(
+                isArabic ? 'خطأ' : 'Error',
+                isArabic ? 'فشل بدء المحادثة' : 'Failed to start conversation'
+              );
+            }
+          }}
           className="flex-1 flex-row-reverse items-center justify-center gap-2 py-3.5 bg-purple-50 rounded-xl"
         >
           <Ionicons name="chatbubble-outline" size={20} color="#4f2396" />

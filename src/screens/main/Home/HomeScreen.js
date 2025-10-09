@@ -28,6 +28,12 @@ export default function HomeScreen({ navigation }) {
   // Cache for profiles to avoid reloading on refresh
   const profilesCacheRef = React.useRef([]);
 
+  // ========================================
+  // REAL-TIME LISTENER MANAGEMENT
+  // ========================================
+  // Store unsubscribe function for initial load (only 1 listener needed)
+  const initialListenerUnsubscribeRef = React.useRef(null);
+
   useEffect(() => {
     // Set mounted flag
     isMountedRef.current = true;
@@ -43,13 +49,28 @@ export default function HomeScreen({ navigation }) {
     // Cleanup on unmount
     return () => {
       isMountedRef.current = false;
-      console.log('🧹 HomeScreen unmounting - cleaning up');
+      console.log('🧹 HomeScreen unmounting - cleaning up listener');
+
+      // Unsubscribe from initial listener
+      if (initialListenerUnsubscribeRef.current) {
+        console.log('🔌 Unsubscribing from initial profiles listener');
+        initialListenerUnsubscribeRef.current();
+        initialListenerUnsubscribeRef.current = null;
+      }
     };
   }, [user]);
 
-  const loadInitialProfiles = async () => {
+  const loadInitialProfiles = () => {
     try {
       if (!isMountedRef.current) return; // Abort if unmounted
+
+      // Cleanup existing listener before creating new one
+      if (initialListenerUnsubscribeRef.current) {
+        console.log('🔌 Cleaning up existing initial listener before reload');
+        initialListenerUnsubscribeRef.current();
+        initialListenerUnsubscribeRef.current = null;
+      }
+
       setLoading(true);
       setError(null);
 
@@ -59,42 +80,89 @@ export default function HomeScreen({ navigation }) {
       console.log('👤 User profile data:', user?.profile?.data);
 
       const userGender = user?.profile?.data?.gender || 'male';
-      console.log('🔍 Loading initial profiles for gender:', userGender);
+      console.log('🔍 Setting up real-time listener for initial profiles, gender:', userGender);
 
-      const result = await ProfileService.getInitialProfiles(userGender);
+      // Set up real-time listener with callback
+      const unsubscribe = ProfileService.getInitialProfiles(
+        userGender,
+        // onUpdate callback
+        (result) => {
+          if (!isMountedRef.current) return; // Abort if unmounted
 
-      if (!isMountedRef.current) return; // Abort if unmounted during async operation
+          console.log('📊 Real-time update received for initial profiles');
+          console.log('  - Profiles:', result.profiles.length);
+          console.log('  - From Cache:', result.fromCache);
+          console.log('  - Has Pending Writes:', result.hasPendingWrites);
 
-      console.log('📊 Loaded initial profiles:', result.profiles.length);
-      if (result.profiles.length > 0) {
-        console.log('📝 First profile:', JSON.stringify(result.profiles[0], null, 2));
-      }
+          if (result.profiles.length > 0) {
+            console.log('📝 First profile:', result.profiles[0].displayName);
+          }
 
-      // Cache profiles for future refresh
-      profilesCacheRef.current = result.profiles;
+          // CRITICAL DEBUG: Log pagination state before update
+          console.log('🔑 BEFORE state update:');
+          console.log('  - lastDoc from result:', result.lastDoc?.id || 'NULL');
+          console.log('  - hasMore from result:', result.hasMore);
 
-      setProfiles(result.profiles);
-      setLastDoc(result.lastDoc);
-      setHasMore(result.hasMore);
+          // Cache profiles for future refresh
+          profilesCacheRef.current = result.profiles;
+
+          // Update state
+          setProfiles(result.profiles);
+          setLastDoc(result.lastDoc);
+          setHasMore(result.hasMore);
+
+          // CRITICAL DEBUG: Log after state update (will show in next render)
+          setTimeout(() => {
+            console.log('🔑 AFTER state update (async):');
+            console.log('  - lastDoc state:', lastDoc?.id || 'NULL');
+            console.log('  - hasMore state:', hasMore);
+            console.log('  - isLoadingMore ref:', isLoadingMoreRef.current);
+            console.log('  - Can paginate:', !!(lastDoc && hasMore && !isLoadingMoreRef.current));
+          }, 100);
+
+          // Only set loading false after first data (cache or server)
+          if (loading) {
+            setLoading(false);
+          }
+        },
+        // onError callback
+        (error) => {
+          if (!isMountedRef.current) return; // Abort if unmounted
+
+          console.error('═══════════════════════════════════════');
+          console.error('🔴 ERROR: Real-time Initial Profiles');
+          console.error('═══════════════════════════════════════');
+          console.error('Error Message:', error.message);
+          console.error('Error Stack:', error.stack);
+          console.error('Error Object:', error);
+          console.error('User Gender:', userGender);
+          console.error('Timestamp:', new Date().toISOString());
+          console.error('═══════════════════════════════════════');
+
+          setError(isArabic ? 'خطأ في تحميل الملفات الشخصية' : 'Error loading profiles');
+          setErrorObject(error);
+          setLoading(false);
+        }
+      );
+
+      // Store unsubscribe function for cleanup
+      initialListenerUnsubscribeRef.current = unsubscribe;
+      console.log('✅ Initial profiles listener created and stored');
+
     } catch (error) {
-      if (!isMountedRef.current) return; // Abort if unmounted
+      if (!isMountedRef.current) return;
 
       console.error('═══════════════════════════════════════');
-      console.error('🔴 ERROR: Loading Initial Profiles');
+      console.error('🔴 ERROR: Setting up Initial Profiles Listener');
       console.error('═══════════════════════════════════════');
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      console.error('Error Object:', error);
-      console.error('User Gender:', user?.profile?.data?.gender);
       console.error('Timestamp:', new Date().toISOString());
       console.error('═══════════════════════════════════════');
 
       setError(isArabic ? 'خطأ في تحميل الملفات الشخصية' : 'Error loading profiles');
       setErrorObject(error);
-    } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
@@ -102,26 +170,57 @@ export default function HomeScreen({ navigation }) {
   const isLoadingMoreRef = React.useRef(false);
 
   const loadMoreProfiles = useCallback(async () => {
+    // ========================================
+    // DEBUG: Log guard conditions BEFORE checks
+    // ========================================
+    console.log('🎯 loadMoreProfiles called!');
+    console.log('  - isLoadingMoreRef.current:', isLoadingMoreRef.current);
+    console.log('  - loadingMore state:', loadingMore);
+    console.log('  - hasMore:', hasMore);
+    console.log('  - lastDoc exists:', !!lastDoc);
+    console.log('  - lastDoc ID:', lastDoc?.id);
+    console.log('  - isMounted:', isMountedRef.current);
+    console.log('  - Current profiles count:', profiles.length);
+
     // DEBOUNCE: Prevent double/triple calls to onEndReached
     if (isLoadingMoreRef.current || loadingMore || !hasMore || !lastDoc || !isMountedRef.current) {
-      console.log('⏸️ Skipping loadMore - already loading or no more data');
+      console.log('⏸️ Skipping loadMore - Reason:');
+      console.log('  - isLoadingMore:', isLoadingMoreRef.current);
+      console.log('  - loadingMore:', loadingMore);
+      console.log('  - !hasMore:', !hasMore);
+      console.log('  - !lastDoc:', !lastDoc);
+      console.log('  - !isMounted:', !isMountedRef.current);
       return;
     }
 
+    // Set loading flag
     isLoadingMoreRef.current = true;
+    console.log('🔒 Set isLoadingMoreRef.current = true');
 
     try {
       setLoadingMore(true);
       const userGender = user?.profile?.data?.gender || 'male';
-      console.log('🔄 Loading more profiles for gender:', userGender);
+      console.log('🔄 Fetching more profiles with getDocs (Option A)');
+      console.log('  - Gender:', userGender);
+      console.log('  - Last Doc ID:', lastDoc?.id);
 
+      // ========================================
+      // OPTION A: Use getDocs for pagination (NO listener, simpler)
+      // ========================================
       const result = await ProfileService.getMoreProfiles(userGender, lastDoc);
 
-      if (!isMountedRef.current) return; // Abort if unmounted during async operation
+      if (!isMountedRef.current) {
+        console.log('⚠️ Component unmounted during pagination fetch, aborting');
+        return; // Abort if unmounted during async operation
+      }
 
-      console.log('📊 Loaded more profiles:', result.profiles.length);
+      console.log('📊 Pagination result received:');
+      console.log('  - New Profiles:', result.profiles.length);
+      console.log('  - New lastDoc ID:', result.lastDoc?.id);
+      console.log('  - Has More:', result.hasMore);
+
       if (result.profiles.length > 0) {
-        console.log('📝 First new profile:', result.profiles[0]);
+        console.log('📝 First new profile:', result.profiles[0].displayName);
       }
 
       // CRITICAL: Use InteractionManager to defer state update until scroll animation finishes
@@ -133,7 +232,11 @@ export default function HomeScreen({ navigation }) {
         const existingIds = new Set(profiles.map(p => p.id));
         const uniqueNewProfiles = result.profiles.filter(p => !existingIds.has(p.id));
         const newProfiles = [...profiles, ...uniqueNewProfiles];
-        console.log('📊 Total profiles after loadMore:', newProfiles.length);
+        
+        console.log('📊 After deduplication:');
+        console.log('  - Existing profiles:', profiles.length);
+        console.log('  - New unique profiles:', uniqueNewProfiles.length);
+        console.log('  - Total profiles:', newProfiles.length);
 
         // Update cache with all loaded profiles
         profilesCacheRef.current = newProfiles;
@@ -142,30 +245,37 @@ export default function HomeScreen({ navigation }) {
         setProfiles(newProfiles);
         setLastDoc(result.lastDoc);
         setHasMore(result.hasMore);
+        setLoadingMore(false);
+
+        console.log('✅ State updated successfully');
+        console.log('  - New lastDoc ID:', result.lastDoc?.id);
+        console.log('  - New hasMore:', result.hasMore);
+        console.log('  - Total profiles in state:', newProfiles.length);
       });
+
     } catch (error) {
-      if (!isMountedRef.current) return; // Abort if unmounted
+      if (!isMountedRef.current) return;
 
       console.error('═══════════════════════════════════════');
       console.error('🔴 ERROR: Loading More Profiles');
       console.error('═══════════════════════════════════════');
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
-      console.error('Error Object:', error);
       console.error('Current Profiles Count:', profiles.length);
       console.error('Has More:', hasMore);
+      console.error('Last Doc ID:', lastDoc?.id);
       console.error('Timestamp:', new Date().toISOString());
       console.error('═══════════════════════════════════════');
+
+      setLoadingMore(false);
     } finally {
-      if (isMountedRef.current) {
-        setLoadingMore(false);
-      }
       // Reset debounce flag
       isLoadingMoreRef.current = false;
+      console.log('🔓 Reset isLoadingMoreRef.current = false');
     }
-  }, [loadingMore, hasMore, lastDoc, user?.profile?.data?.gender, profiles.length]);
+  }, [loadingMore, hasMore, lastDoc, user?.profile?.data?.gender, profiles]);
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
 
     // BIG APP BEHAVIOR: Use cached data while fetching new data in background
@@ -177,28 +287,25 @@ export default function HomeScreen({ navigation }) {
     }
 
     try {
-      const userGender = user?.profile?.data?.gender || 'male';
-      const result = await ProfileService.getInitialProfiles(userGender);
+      // Note: No pagination listeners to clean up (using getDocs, not onSnapshot)
+      // Only initial load uses onSnapshot, which is cleaned up in loadInitialProfiles
 
-      if (!isMountedRef.current) return;
+      // Reload initial profiles (will clean up and recreate listener)
+      loadInitialProfiles();
 
-      // Only update if we got NEW data
-      if (result.profiles.length > 0) {
-        console.log('✅ Refresh completed - updating with', result.profiles.length, 'profiles');
-        profilesCacheRef.current = result.profiles;
-        setProfiles(result.profiles);
-        setLastDoc(result.lastDoc);
-        setHasMore(result.hasMore);
-      } else {
-        console.log('📋 No new profiles - keeping cached data');
-      }
+      console.log('✅ Refresh initiated - real-time listener will provide updates');
     } catch (error) {
       console.error('❌ Refresh error:', error);
       // Keep showing cached data on error
     } finally {
-      setRefreshing(false);
+      // Set refreshing false after a short delay to show refresh animation
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          setRefreshing(false);
+        }
+      }, 500);
     }
-  }, [user, isMountedRef]);
+  }, [user, loadInitialProfiles]);
 
   // Memoized navigation handler - prevents ProfileCard re-renders
   const handleProfilePress = useCallback((item) => {
@@ -245,9 +352,58 @@ export default function HomeScreen({ navigation }) {
   }, [navigation, isArabic]);
 
   // Memoized chat handler
-  const handleChatPress = useCallback((profileId) => {
-    console.log('Chat:', profileId);
-  }, []);
+  const handleChatPress = useCallback(async (profileId, profileData) => {
+    try {
+      console.log('💬 Starting chat with:', profileId);
+
+      // Create or get existing conversation
+      const ConversationService = require('../../../services/ConversationService').default;
+      const result = await ConversationService.createConversation(user.uid, profileId);
+
+      if (result.success) {
+        console.log('✅ Conversation ready:', result.conversationId);
+        
+        // Prepare other user data for ChatRoom
+        const otherUser = profileData ? {
+          id: profileId,
+          displayName: profileData.displayName || profileData.name || 'Unknown',
+          gender: profileData.gender || 'male',
+          firstPhoto: profileData.photos?.[0] || profileData.firstPhoto
+        } : null;
+        
+        // Navigate to chat room using parent navigator
+        const parentNav = navigation.getParent();
+        console.log('🔍 Parent navigator:', parentNav ? 'Found' : 'Not found');
+        
+        if (parentNav) {
+          console.log('📍 Navigating to ChatRoom via parent...');
+          parentNav.navigate('ChatRoom', {
+            conversationId: result.conversationId,
+            otherUser: otherUser // Pass user data to avoid re-fetching
+          });
+        } else {
+          // Fallback to direct navigation
+          console.log('📍 Navigating to ChatRoom directly...');
+          navigation.navigate('ChatRoom', {
+            conversationId: result.conversationId,
+            otherUser: otherUser // Pass user data to avoid re-fetching
+          });
+        }
+      } else {
+        console.error('Failed to create conversation:', result.error);
+        Alert.alert(
+          isArabic ? 'خطأ' : 'Error',
+          result.error || (isArabic ? 'فشل بدء المحادثة' : 'Failed to start conversation')
+        );
+      }
+    } catch (error) {
+      console.error('Error starting chat:', error);
+      Alert.alert(
+        isArabic ? 'خطأ' : 'Error',
+        isArabic ? 'فشل بدء المحادثة' : 'Failed to start conversation'
+      );
+    }
+  }, [user?.uid, navigation, isArabic]);
 
   const renderProfile = useCallback(({ item }) => {
     if (!item) {
@@ -259,7 +415,7 @@ export default function HomeScreen({ navigation }) {
       <CompactProfileCard
         profile={item}
         onPress={() => handleProfilePress(item)}
-        onChat={handleChatPress}
+        onChat={(profileId) => handleChatPress(profileId, item)}
       />
     );
   }, [handleProfilePress, handleChatPress]);
@@ -415,11 +571,15 @@ export default function HomeScreen({ navigation }) {
             onRefresh={onRefresh}
             colors={['#4F2396']}
             tintColor="#4F2396"
+            progressViewOffset={0}
           />
         }
+        scrollEventThrottle={16}
+        bounces={true}
+        overScrollMode="auto"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingBottom: 20,
+          paddingBottom: 100, // Extra padding for bottom tab bar (60px) + safe area
           flexGrow: 1
         }}
         // =========================================

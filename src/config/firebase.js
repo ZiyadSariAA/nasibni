@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -186,8 +186,21 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });
 
-// Initialize Firebase services
-const db = getFirestore(app);
+// ========================================
+// Initialize Firestore with Persistent Cache
+// ========================================
+// This enables offline support and real-time updates
+// - persistentLocalCache: Works with React Native (NOT web-only)
+// - Caches data locally for offline access
+// - Syncs automatically when back online
+// - Improves performance with instant cache reads
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
+// Initialize Firebase Storage
 const storage = getStorage(app);
 
 // Note: Analytics is not available in React Native

@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import NotificationService from './NotificationService';
+import PeopleDataService from './PeopleDataService';
 
 class LikeService {
   /**
@@ -234,146 +235,69 @@ class LikeService {
   /**
    * Get users who liked this user
    * Used for "Who Liked You" tab in People screen
+   * 
+   * OPTIMIZED: Uses batched fetching via PeopleDataService
+   * - Reduced from ~51 Firestore reads to ~6 reads (90% reduction!)
    *
    * @param {string} userId - User ID
+   * @param {Object|null} userData - Optional: User's Firestore document data (to avoid refetch)
    * @param {number} limitCount - Max number of users to fetch
    * @returns {Promise<Array>} Array of user profile objects
    */
-  async getUsersWhoLikedMe(userId, limitCount = 50) {
+  async getUsersWhoLikedMe(userId, userData = null, limitCount = 50) {
+    const startTime = Date.now();
+    let firestoreReads = 0;
+
     try {
-      console.log(`💕 Fetching users who liked ${userId}`);
+      console.log(`💕 Fetching users who liked ${userId} (OPTIMIZED)`);
 
-      // Get current user document to get whoLikedMe array
-      const userDoc = await getDoc(doc(db, 'users', userId));
+      // Fetch user document if not provided
+      if (!userData) {
+        console.log('  - Fetching user document...');
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        firestoreReads++;
 
-      if (!userDoc.exists()) {
-        throw new Error('User not found');
+        if (!userDoc.exists()) {
+          throw new Error('User not found');
+        }
+
+        userData = userDoc.data();
+      } else {
+        console.log('  - Using provided userData (0 reads)');
       }
 
-      const userData = userDoc.data();
       const whoLikedMe = userData.whoLikedMe || [];
 
       if (whoLikedMe.length === 0) {
         console.log('📋 No users have liked this user');
+        console.log(`📊 PERFORMANCE: getUsersWhoLikedMe - ${firestoreReads} reads, ${Date.now() - startTime}ms`);
         return [];
       }
 
-      // Get current user's blocked users to filter them out
-      const blockedUsers = Array.isArray(userData.blockedUsers) ? userData.blockedUsers : [];
-      const blockedBy = Array.isArray(userData.blockedBy) ? userData.blockedBy : [];
-      const allBlockedUsers = [...new Set([...blockedUsers, ...blockedBy])].filter(id => id); // Remove null/undefined
+      console.log(`  - Found ${whoLikedMe.length} likers in array`);
 
-      // Filter out blocked users from whoLikedMe array
-      const likerIds = whoLikedMe.filter(id => id && !allBlockedUsers.includes(id));
+      // ========================================
+      // OPTIMIZATION: Use PeopleDataService for batched fetching
+      // ========================================
+      const profiles = await PeopleDataService.getProfilesByIds(
+        whoLikedMe,
+        userData,
+        limitCount
+      );
 
-      if (likerIds.length === 0) {
-        console.log('📋 No non-blocked users have liked this user');
-        return [];
-      }
+      // Calculate batch queries: ceil(profiles.length / 10)
+      const batchQueries = Math.ceil(Math.min(whoLikedMe.length, limitCount) / 10);
+      firestoreReads += batchQueries;
 
-      // Fetch liker profiles (limit to first N to avoid large queries)
-      const limitedLikerIds = likerIds.slice(0, limitCount);
+      const timeTaken = Date.now() - startTime;
 
-      // Fetch all liker documents
-      const likerProfiles = [];
-      for (const likerId of limitedLikerIds) {
-        try {
-          const likerDoc = await getDoc(doc(db, 'users', likerId));
+      console.log('📊 PERFORMANCE: getUsersWhoLikedMe Complete');
+      console.log(`  - Firestore reads: ${firestoreReads} (vs ${whoLikedMe.length + 1} with old method)`);
+      console.log(`  - Time taken: ${timeTaken}ms`);
+      console.log(`  - Profiles fetched: ${profiles.length}`);
+      console.log(`  - Reduction: ${Math.round((1 - firestoreReads / (whoLikedMe.length + 1)) * 100)}%`);
 
-          if (likerDoc.exists()) {
-            const likerData = likerDoc.data();
-
-            // Only include active users with completed profiles
-            if (likerData.accountStatus === 'active' && likerData.profileCompleted) {
-              const profileData = likerData.profileData || {};
-
-              // Normalize country data - KEEP BOTH ARABIC AND ENGLISH NAMES
-              const normalizeCountry = (countryObj) => {
-                if (!countryObj) return null;
-                if (typeof countryObj === 'string') return countryObj;
-
-                return {
-                  nameAr: countryObj.nameAr || countryObj.countryName || '',
-                  nameEn: countryObj.nameEn || countryObj.countryName || '',
-                  countryName: countryObj.countryName || countryObj.nameEn || '',
-                  code: countryObj.alpha2 || countryObj.code || ''
-                };
-              };
-
-              // Pre-process photos array
-              const normalizedPhotos = profileData.photos && Array.isArray(profileData.photos)
-                ? profileData.photos.filter(photo => photo && typeof photo === 'string')
-                : [];
-
-              likerProfiles.push({
-                id: likerDoc.id,
-                // Core identity
-                displayName: profileData.displayName || likerData.displayName || 'Unknown',
-                name: profileData.displayName || likerData.displayName || 'Unknown',
-                age: profileData.age || null,
-                gender: profileData.gender || null,
-
-                // Physical attributes
-                height: profileData.height || null,
-                weight: profileData.weight || null,
-                skinTone: profileData.skinTone || null,
-
-                // Location (pre-normalized)
-                nationality: normalizeCountry(profileData.nationality),
-                residenceCountry: normalizeCountry(profileData.residenceCountry),
-                residenceCity: profileData.residenceCity || null,
-                country: profileData.residenceCountry?.countryName ||
-                         profileData.residenceCountry?.nameEn || '',
-                city: profileData.residenceCity || '',
-
-                // Background & Social
-                maritalStatus: profileData.maritalStatus || null,
-                religion: profileData.religion || null,
-                prayerHabit: profileData.prayerHabit || null,
-                educationLevel: profileData.educationLevel || null,
-                workStatus: profileData.workStatus || null,
-                tribeAffiliation: profileData.tribeAffiliation || null,
-
-                // Marriage Preferences
-                marriageTypes: profileData.marriageTypes || [],
-                marriagePlan: profileData.marriagePlan || null,
-                residenceAfterMarriage: profileData.residenceAfterMarriage || null,
-
-                // Family & Children
-                childrenTiming: profileData.childrenTiming || null,
-                allowWifeWorkStudy: profileData.allowWifeWorkStudy || null,
-
-                // Financial & Health
-                incomeLevel: profileData.incomeLevel || null,
-                healthStatus: profileData.healthStatus || [],
-
-                // Lifestyle
-                smoking: profileData.smoking || null,
-                chatLanguages: profileData.chatLanguages || [],
-
-                // Descriptions
-                aboutMe: profileData.aboutMe || null,
-                idealPartner: profileData.idealPartner || null,
-                description: profileData.aboutMe || '',
-                about: profileData.aboutMe || '',
-
-                // Photos (pre-processed)
-                photos: normalizedPhotos,
-                firstPhoto: normalizedPhotos[0] || null,
-
-                // Metadata
-                createdAt: likerData.createdAt || profileData.completedAt || new Date().toISOString(),
-              });
-            }
-          }
-        } catch (likerError) {
-          console.error(`Error fetching liker ${likerId}:`, likerError);
-          // Continue with other likers
-        }
-      }
-
-      console.log(`📋 Found ${likerProfiles.length} users who liked this user`);
-      return likerProfiles;
+      return profiles;
     } catch (error) {
       console.error('═══════════════════════════════════════');
       console.error('🔴 ERROR: LikeService.getUsersWhoLikedMe');
@@ -389,146 +313,69 @@ class LikeService {
   /**
    * Get users this user liked
    * Used for "Who You Liked" tab in People screen
+   * 
+   * OPTIMIZED: Uses batched fetching via PeopleDataService
+   * - Reduced from ~51 Firestore reads to ~6 reads (90% reduction!)
    *
    * @param {string} userId - User ID
+   * @param {Object|null} userData - Optional: User's Firestore document data (to avoid refetch)
    * @param {number} limitCount - Max number of users to fetch
    * @returns {Promise<Array>} Array of user profile objects
    */
-  async getUsersILiked(userId, limitCount = 50) {
+  async getUsersILiked(userId, userData = null, limitCount = 50) {
+    const startTime = Date.now();
+    let firestoreReads = 0;
+
     try {
-      console.log(`💖 Fetching users ${userId} liked`);
+      console.log(`💖 Fetching users ${userId} liked (OPTIMIZED)`);
 
-      // Get current user document to get likedProfiles array
-      const userDoc = await getDoc(doc(db, 'users', userId));
+      // Fetch user document if not provided
+      if (!userData) {
+        console.log('  - Fetching user document...');
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        firestoreReads++;
 
-      if (!userDoc.exists()) {
-        throw new Error('User not found');
+        if (!userDoc.exists()) {
+          throw new Error('User not found');
+        }
+
+        userData = userDoc.data();
+      } else {
+        console.log('  - Using provided userData (0 reads)');
       }
 
-      const userData = userDoc.data();
       const likedProfiles = userData.likedProfiles || [];
 
       if (likedProfiles.length === 0) {
         console.log('📋 User has not liked anyone');
+        console.log(`📊 PERFORMANCE: getUsersILiked - ${firestoreReads} reads, ${Date.now() - startTime}ms`);
         return [];
       }
 
-      // Get current user's blocked users to filter them out
-      const blockedUsers = Array.isArray(userData.blockedUsers) ? userData.blockedUsers : [];
-      const blockedBy = Array.isArray(userData.blockedBy) ? userData.blockedBy : [];
-      const allBlockedUsers = [...new Set([...blockedUsers, ...blockedBy])].filter(id => id); // Remove null/undefined
+      console.log(`  - Found ${likedProfiles.length} liked users in array`);
 
-      // Filter out blocked users from likedProfiles array
-      const likedUserIds = likedProfiles.filter(id => id && !allBlockedUsers.includes(id));
+      // ========================================
+      // OPTIMIZATION: Use PeopleDataService for batched fetching
+      // ========================================
+      const profiles = await PeopleDataService.getProfilesByIds(
+        likedProfiles,
+        userData,
+        limitCount
+      );
 
-      if (likedUserIds.length === 0) {
-        console.log('📋 No non-blocked users in liked list');
-        return [];
-      }
+      // Calculate batch queries: ceil(profiles.length / 10)
+      const batchQueries = Math.ceil(Math.min(likedProfiles.length, limitCount) / 10);
+      firestoreReads += batchQueries;
 
-      // Fetch liked profiles (limit to first N to avoid large queries)
-      const limitedLikedIds = likedUserIds.slice(0, limitCount);
+      const timeTaken = Date.now() - startTime;
 
-      // Fetch all liked user documents
-      const likedUserProfiles = [];
-      for (const likedUserId of limitedLikedIds) {
-        try {
-          const likedUserDoc = await getDoc(doc(db, 'users', likedUserId));
+      console.log('📊 PERFORMANCE: getUsersILiked Complete');
+      console.log(`  - Firestore reads: ${firestoreReads} (vs ${likedProfiles.length + 1} with old method)`);
+      console.log(`  - Time taken: ${timeTaken}ms`);
+      console.log(`  - Profiles fetched: ${profiles.length}`);
+      console.log(`  - Reduction: ${Math.round((1 - firestoreReads / (likedProfiles.length + 1)) * 100)}%`);
 
-          if (likedUserDoc.exists()) {
-            const likedUserData = likedUserDoc.data();
-
-            // Only include active users with completed profiles
-            if (likedUserData.accountStatus === 'active' && likedUserData.profileCompleted) {
-              const profileData = likedUserData.profileData || {};
-
-              // Normalize country data - KEEP BOTH ARABIC AND ENGLISH NAMES
-              const normalizeCountry = (countryObj) => {
-                if (!countryObj) return null;
-                if (typeof countryObj === 'string') return countryObj;
-
-                return {
-                  nameAr: countryObj.nameAr || countryObj.countryName || '',
-                  nameEn: countryObj.nameEn || countryObj.countryName || '',
-                  countryName: countryObj.countryName || countryObj.nameEn || '',
-                  code: countryObj.alpha2 || countryObj.code || ''
-                };
-              };
-
-              // Pre-process photos array
-              const normalizedPhotos = profileData.photos && Array.isArray(profileData.photos)
-                ? profileData.photos.filter(photo => photo && typeof photo === 'string')
-                : [];
-
-              likedUserProfiles.push({
-                id: likedUserDoc.id,
-                // Core identity
-                displayName: profileData.displayName || likedUserData.displayName || 'Unknown',
-                name: profileData.displayName || likedUserData.displayName || 'Unknown',
-                age: profileData.age || null,
-                gender: profileData.gender || null,
-
-                // Physical attributes
-                height: profileData.height || null,
-                weight: profileData.weight || null,
-                skinTone: profileData.skinTone || null,
-
-                // Location (pre-normalized)
-                nationality: normalizeCountry(profileData.nationality),
-                residenceCountry: normalizeCountry(profileData.residenceCountry),
-                residenceCity: profileData.residenceCity || null,
-                country: profileData.residenceCountry?.countryName ||
-                         profileData.residenceCountry?.nameEn || '',
-                city: profileData.residenceCity || '',
-
-                // Background & Social
-                maritalStatus: profileData.maritalStatus || null,
-                religion: profileData.religion || null,
-                prayerHabit: profileData.prayerHabit || null,
-                educationLevel: profileData.educationLevel || null,
-                workStatus: profileData.workStatus || null,
-                tribeAffiliation: profileData.tribeAffiliation || null,
-
-                // Marriage Preferences
-                marriageTypes: profileData.marriageTypes || [],
-                marriagePlan: profileData.marriagePlan || null,
-                residenceAfterMarriage: profileData.residenceAfterMarriage || null,
-
-                // Family & Children
-                childrenTiming: profileData.childrenTiming || null,
-                allowWifeWorkStudy: profileData.allowWifeWorkStudy || null,
-
-                // Financial & Health
-                incomeLevel: profileData.incomeLevel || null,
-                healthStatus: profileData.healthStatus || [],
-
-                // Lifestyle
-                smoking: profileData.smoking || null,
-                chatLanguages: profileData.chatLanguages || [],
-
-                // Descriptions
-                aboutMe: profileData.aboutMe || null,
-                idealPartner: profileData.idealPartner || null,
-                description: profileData.aboutMe || '',
-                about: profileData.aboutMe || '',
-
-                // Photos (pre-processed)
-                photos: normalizedPhotos,
-                firstPhoto: normalizedPhotos[0] || null,
-
-                // Metadata
-                createdAt: likedUserData.createdAt || profileData.completedAt || new Date().toISOString(),
-              });
-            }
-          }
-        } catch (likedUserError) {
-          console.error(`Error fetching liked user ${likedUserId}:`, likedUserError);
-          // Continue with other users
-        }
-      }
-
-      console.log(`📋 Found ${likedUserProfiles.length} users this user liked`);
-      return likedUserProfiles;
+      return profiles;
     } catch (error) {
       console.error('═══════════════════════════════════════');
       console.error('🔴 ERROR: LikeService.getUsersILiked');
