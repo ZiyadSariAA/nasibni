@@ -18,8 +18,10 @@ import { HomeScreen } from '../screens/main/Home';
 import { DetailedUserScreen } from '../screens/main/Home/detailedUserScreen';
 import { PeopleScreen } from '../screens/main/People';
 import { ChatsScreen } from '../screens/main/Chats';
+import ChatRoom from '../screens/main/Chats/chatRoom';
 import { ProfileScreen } from '../screens/main/Profile';
 import ProfileDetailScreen from '../screens/main/Profile/ProfileDetailScreen';
+import { SettingsScreen, BlockedUsersScreen } from '../screens/main/Profile/Settings';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -195,7 +197,7 @@ export default function AppNavigator() {
         }}
       >
         {!user ? (
-          // Not signed in - Show auth flow
+          // Not signed in - ALWAYS show Welcome every time
           <>
             <Stack.Screen name="Welcome" component={WelcomeCarouselScreen} />
             <Stack.Screen name="SignIn" component={SignInScreen} />
@@ -223,6 +225,30 @@ export default function AppNavigator() {
             <Stack.Screen
               name="ProfileDetail"
               component={ProfileDetailScreen}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_right'
+              }}
+            />
+            <Stack.Screen
+              name="ChatRoom"
+              component={ChatRoom}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_right'
+              }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_right'
+              }}
+            />
+            <Stack.Screen
+              name="BlockedUsers"
+              component={BlockedUsersScreen}
               options={{
                 headerShown: false,
                 animation: 'slide_from_right'

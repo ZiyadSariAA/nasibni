@@ -17,6 +17,10 @@ export default function WelcomeNavigation({
     ? (isArabic ? 'ابدأ الآن' : 'Get Started')
     : (isArabic ? 'التالي' : 'Next');
 
+  // Use orange accent for "Get Started" button (last slide)
+  const isLastSlide = currentIndex === slidesLength - 1;
+  const buttonColor = isLastSlide ? '#F69554' : '#4F2396'; // Orange on last, purple on others
+
   const buttonScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -76,10 +80,10 @@ export default function WelcomeNavigation({
           size="large"
           onPress={onNext}
           style={{
-            backgroundColor: '#4F2396',
+            backgroundColor: buttonColor,
             borderRadius: 12,
             height: 56,
-            shadowColor: '#4F2396',
+            shadowColor: buttonColor,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,

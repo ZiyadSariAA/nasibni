@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, Dimensions } from 'react-native';
+import { View, ScrollView, Dimensions, Animated } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { welcomeSlides } from './welcomeData';
 import { WelcomeSlide, WelcomeDots, WelcomeNavigation, SmartStatusBar } from '../../../components/main';
@@ -10,6 +11,7 @@ export default function WelcomeCarouselScreen({ navigation }) {
   const { isArabic, isLoading } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef(null);
+  const screenOpacity = useRef(new Animated.Value(1)).current;
 
   // Don't render until language is loaded
   if (isLoading) {
@@ -25,6 +27,15 @@ export default function WelcomeCarouselScreen({ navigation }) {
   };
 
   const handleNext = () => {
+    // Haptic feedback on button press
+    if (currentIndex === slides.length - 1) {
+      // Stronger feedback for "Get Started"
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } else {
+      // Light feedback for "Next"
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
     if (currentIndex < slides.length - 1) {
       scrollViewRef.current?.scrollTo({
         x: width * (currentIndex + 1),
@@ -36,15 +47,27 @@ export default function WelcomeCarouselScreen({ navigation }) {
   };
 
   const handleSkip = () => {
+    // Light haptic feedback for skip
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     handleGetStarted();
   };
 
   const handleGetStarted = () => {
-    navigation.replace('SignIn');
+    // Fade out animation before navigation
+    Animated.timing(screenOpacity, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      navigation.replace('SignIn');
+    });
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <Animated.View 
+      className="flex-1 bg-white"
+      style={{ opacity: screenOpacity }}
+    >
       <SmartStatusBar backgroundColor="#FFFFFF" />
 
       <WelcomeNavigation
@@ -65,6 +88,7 @@ export default function WelcomeCarouselScreen({ navigation }) {
         scrollEventThrottle={16}
         className="flex-1"
         contentContainerStyle={{ alignItems: 'center' }}
+        inverted={isArabic}
       >
         {slides.map((slide) => (
           <View 
@@ -77,6 +101,6 @@ export default function WelcomeCarouselScreen({ navigation }) {
       </ScrollView>
 
       <WelcomeDots slides={slides} currentIndex={currentIndex} />
-    </View>
+    </Animated.View>
   );
 }

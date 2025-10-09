@@ -100,6 +100,8 @@ export default function WelcomeSlide({ slide, isArabic }) {
               height: imageHeight,
             }}
             resizeMode="contain"
+            accessibilityLabel={isArabic ? 'صورة توضيحية' : 'Illustration'}
+            accessible={true}
           />
         </Animated.View>
 
