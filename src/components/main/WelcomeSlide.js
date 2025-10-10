@@ -6,8 +6,8 @@ import { FONTS } from '../../config/fonts';
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeSlide({ slide, isArabic }) {
-  const imageWidth = Math.min(width * 0.75, 280);
-  const imageHeight = Math.min(height * 0.3, 220);
+  const imageWidth = Math.min(width * 0.75, 300); // Slightly smaller for balance
+  const imageHeight = Math.min(height * 0.32, 240); // Proportional height
 
   const imageOpacity = useRef(new Animated.Value(0)).current;
   const imageScale = useRef(new Animated.Value(0.8)).current;
@@ -73,26 +73,26 @@ export default function WelcomeSlide({ slide, isArabic }) {
   }, [slide.id]);
 
   return (
-    <View className="flex-1 justify-center items-center px-6 pb-32">
+    <View className="flex-1 justify-center items-center px-6 pb-20">
       <View
         className="items-center"
-        style={{ maxWidth: width * 0.85 }}
+        style={{ maxWidth: width * 0.9 }}
       >
         <Animated.View
           style={{
             opacity: imageOpacity,
             transform: [{ scale: imageScale }],
-            marginBottom: 40,
+            marginBottom: 32,
             alignItems: 'center',
           }}
         >
           {/* Icon above the image */}
           {slide.icon && (
-            <View style={{ marginBottom: 20 }}>
+            <View style={{ marginBottom: 24 }}>
               {slide.icon}
             </View>
           )}
-          
+
           <Image
             source={slide.image}
             style={{
@@ -109,7 +109,7 @@ export default function WelcomeSlide({ slide, isArabic }) {
           style={{
             opacity: titleOpacity,
             transform: [{ translateY: titleTranslateY }],
-            marginBottom: 20,
+            marginBottom: 16,
           }}
         >
           <Text
@@ -119,8 +119,8 @@ export default function WelcomeSlide({ slide, isArabic }) {
               color: '#4F2396',
               fontFamily: FONTS.bold,
               textAlign: 'center',
-              fontSize: 24,
-              lineHeight: 32,
+              fontSize: 28,
+              lineHeight: 38,
             }}
           >
             {slide.title}
@@ -131,7 +131,7 @@ export default function WelcomeSlide({ slide, isArabic }) {
           style={{
             opacity: descriptionOpacity,
             transform: [{ translateY: descriptionTranslateY }],
-            paddingHorizontal: 10,
+            paddingHorizontal: 16,
           }}
         >
           <Text
@@ -140,8 +140,8 @@ export default function WelcomeSlide({ slide, isArabic }) {
               color: '#6B7280',
               fontFamily: FONTS.regular,
               textAlign: 'center',
-              fontSize: 16,
-              lineHeight: 24,
+              fontSize: 17,
+              lineHeight: 26,
             }}
           >
             {slide.description}

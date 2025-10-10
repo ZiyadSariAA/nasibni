@@ -97,7 +97,7 @@ const CountryPicker = ({
           className={`text-base text-text-primary ${
             isArabic ? 'text-right' : 'text-left'
           }`}
-          style={{ fontFamily: 'Cairo_400Regular' }}
+          style={{ fontFamily: 'Tajawal_400Regular' }}
         >
           {country.label[isArabic ? 'ar' : 'en']}
         </Text>
@@ -107,7 +107,7 @@ const CountryPicker = ({
             className={`text-sm text-text-muted mt-1 ${
               isArabic ? 'text-right' : 'text-left'
             }`}
-            style={{ fontFamily: 'Cairo_400Regular' }}
+            style={{ fontFamily: 'Tajawal_400Regular' }}
           >
             {country.alpha2.toUpperCase()}
           </Text>
@@ -121,7 +121,7 @@ const CountryPicker = ({
       <View className="flex-1 justify-center items-center py-8">
         <Text 
           className="text-text-muted"
-          style={{ fontFamily: 'Cairo_400Regular' }}
+          style={{ fontFamily: 'Tajawal_400Regular' }}
         >
           {isArabic ? 'جاري التحميل...' : 'Loading...'}
         </Text>
@@ -141,7 +141,7 @@ const CountryPicker = ({
           className={`h-12 px-4 border border-border rounded-lg text-base ${
             isArabic ? 'text-right' : 'text-left'
           }`}
-          style={{ fontFamily: 'Cairo_400Regular' }}
+          style={{ fontFamily: 'Tajawal_400Regular' }}
         />
       </View>
 
@@ -153,7 +153,7 @@ const CountryPicker = ({
           <View className="flex-1 justify-center items-center py-8">
             <Text 
               className="text-text-muted text-center"
-              style={{ fontFamily: 'Cairo_400Regular' }}
+              style={{ fontFamily: 'Tajawal_400Regular' }}
             >
               {isArabic ? 'لا توجد نتائج' : 'No results found'}
             </Text>
@@ -168,7 +168,7 @@ const CountryPicker = ({
             className={`text-sm text-text-muted ${
               isArabic ? 'text-right' : 'text-left'
             }`}
-            style={{ fontFamily: 'Cairo_400Regular' }}
+            style={{ fontFamily: 'Tajawal_400Regular' }}
           >
             {isArabic ? 'المحدد:' : 'Selected:'} {getSelectedCountryName()}
           </Text>

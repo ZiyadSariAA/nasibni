@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Image, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, StatusBar } from 'react-native';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -12,6 +12,64 @@ export default function SignUpScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const backgroundMusicRef = useRef(null);
+
+  // Continue music from Welcome/Transition and fade out after 10 seconds
+  useEffect(() => {
+    const handleContinuousMusic = async () => {
+      try {
+        // Check if music is playing from Welcome screen
+        if (global.splashBackgroundMusic) {
+          const sound = global.splashBackgroundMusic;
+          backgroundMusicRef.current = sound;
+
+          console.log('🎵 Music continuing from Welcome (seamless!)');
+
+          // Fade out after 10 seconds on SignUp screen
+          setTimeout(async () => {
+            if (sound) {
+              console.log('🔉 Starting gradual fade-out over 5 seconds...');
+              // VERY gradual fade out over 5 seconds (20 steps)
+              for (let i = 20; i >= 0; i--) {
+                try {
+                  const volume = 0.3 * (i / 20);
+                  await sound.setVolumeAsync(volume);
+                  console.log(`  Volume: ${Math.round(volume * 100)}%`);
+                  await new Promise(resolve => setTimeout(resolve, 250));
+                } catch (err) {
+                  console.log('  Fade interrupted');
+                  break;
+                }
+              }
+              await sound.stopAsync();
+              await sound.unloadAsync();
+              global.splashBackgroundMusic = null;
+              backgroundMusicRef.current = null;
+              console.log('✅ Music faded out completely');
+            }
+          }, 10000); // 10 seconds
+
+        } else {
+          console.log('⚠️ No continuous music from Welcome');
+        }
+
+      } catch (error) {
+        console.error('❌ Error handling continuous music:', error);
+      }
+    };
+
+    handleContinuousMusic();
+
+    // Cleanup on unmount
+    return () => {
+      if (backgroundMusicRef.current) {
+        console.log('🧹 Cleaning up SignUp music');
+        backgroundMusicRef.current.stopAsync().then(() => {
+          backgroundMusicRef.current.unloadAsync().catch(() => {});
+        }).catch(() => {});
+      }
+    };
+  }, []);
 
   // Don't render until language is loaded
   if (isLanguageLoading) {
@@ -95,15 +153,15 @@ export default function SignUpScreen({ navigation }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48 }}
       >
         {/* Image */}
-        <View className="items-center mb-6 mt-4">
+        <View className="items-center mt-6 mb-8">
           <Image
             source={require('../../../assets/images/newphoto.png')}
             style={{
-              width: 160,
-              height: 160,
+              width: 180,
+              height: 180,
             }}
             resizeMode="contain"
           />
@@ -210,17 +268,17 @@ export default function SignUpScreen({ navigation }) {
             disabled={isSigningUp}
             style={{
               backgroundColor: '#4F2396',
-              borderRadius: 12,
+              borderRadius: 16,
               height: 56,
-              marginBottom: 24,
+              marginBottom: 32,
               shadowColor: '#4F2396',
               shadowOffset: {
                 width: 0,
-                height: 4,
+                height: 6,
               },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 8,
+              shadowOpacity: 0.4,
+              shadowRadius: 12,
+              elevation: 10,
             }}
             textStyle={{
               fontFamily: FONTS.bold,

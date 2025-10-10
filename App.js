@@ -8,8 +8,15 @@ import {
   useFonts,
   Cairo_400Regular,
   Cairo_600SemiBold,
-  Cairo_700Bold
+  Cairo_700Bold,
+  Cairo_900Black
 } from '@expo-google-fonts/cairo';
+import {
+  Tajawal_400Regular,
+  Tajawal_500Medium,
+  Tajawal_700Bold,
+  Tajawal_900Black
+} from '@expo-google-fonts/tajawal';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
@@ -21,6 +28,12 @@ export default function App() {
     Cairo_400Regular,
     Cairo_600SemiBold,
     Cairo_700Bold,
+    Cairo_900Black,
+    // Tajawal for splash screen
+    Tajawal_400Regular,
+    Tajawal_500Medium,
+    Tajawal_700Bold,
+    Tajawal_900Black,
   });
 
   useEffect(() => {

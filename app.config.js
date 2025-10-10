@@ -11,9 +11,9 @@ export default {
     newArchEnabled: true,
     scheme: "nasibni",
     splash: {
-      image: "./src/assets/logos/Group1.png",
+      image: "./src/assets/logos/Logo1.png",
       resizeMode: "contain",
-      backgroundColor: "#4F2396"
+      backgroundColor: "#FFFFFF"
     },
     ios: {
       supportsTablet: true,
@@ -22,7 +22,7 @@ export default {
     android: {
       adaptiveIcon: {
         foregroundImage: "./src/assets/logos/Logo1.png",
-        backgroundColor: "#4F2396"
+        backgroundColor: "#FFFFFF"
       },
       edgeToEdgeEnabled: true,
       package: "com.nasibni.app"

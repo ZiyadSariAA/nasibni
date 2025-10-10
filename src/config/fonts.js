@@ -1,9 +1,11 @@
 export const FONTS = {
-  // خط موحد لجميع النصوص
-  appName: 'Cairo_700Bold',
-  regular: 'Cairo_400Regular',
-  semibold: 'Cairo_600SemiBold',
-  bold: 'Cairo_700Bold',
+  // Tajawal - خط عربي عصري لجميع النصوص
+  appName: 'Tajawal_900Black',
+  regular: 'Tajawal_400Regular',
+  medium: 'Tajawal_500Medium',
+  semibold: 'Tajawal_700Bold',  // Tajawal doesn't have 600, using 700
+  bold: 'Tajawal_700Bold',
+  black: 'Tajawal_900Black',
 };
 
 export const APP_NAME_STYLE = {

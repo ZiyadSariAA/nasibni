@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import SplashScreen from '../screens/main/splash/SplashScreen';
 import WelcomeCarouselScreen from '../screens/main/welcome/WelcomeCarouselScreen';
+import TransitionScreen from '../screens/main/welcome/TransitionScreen';
 import { SignInScreen, SignUpScreen } from '../screens/main/SigninAndSignup';
 import OnboardingNavigator from './OnboardingNavigator';
 import { HomeScreen } from '../screens/main/Home';
@@ -172,20 +173,17 @@ function MainTabs() {
 
 export default function AppNavigator() {
   const { user, initializing } = useAuth();
-  const [showSplash, setShowSplash] = useState(true);
+  const [splashComplete, setSplashComplete] = useState(false);
 
-  useEffect(() => {
-    // Show splash for at least 2 seconds
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
+  // Callback from SplashScreen when animation completes
+  const handleSplashComplete = () => {
+    console.log('✅ Splash animation complete, showing navigation');
+    setSplashComplete(true);
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Show splash screen while initializing
-  if (initializing || showSplash) {
-    return <SplashScreen />;
+  // Show splash screen while initializing OR until splash animation completes
+  if (initializing || !splashComplete) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
   }
 
   return (
@@ -200,6 +198,14 @@ export default function AppNavigator() {
           // Not signed in - ALWAYS show Welcome every time
           <>
             <Stack.Screen name="Welcome" component={WelcomeCarouselScreen} />
+            <Stack.Screen 
+              name="Transition" 
+              component={TransitionScreen}
+              options={{ 
+                headerShown: false,
+                gestureEnabled: false // Prevent swipe back during animation
+              }}
+            />
             <Stack.Screen name="SignIn" component={SignInScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
           </>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Dimensions, Animated } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Button from './Button';
 import { FONTS } from '../../config/fonts';
 
@@ -12,14 +13,15 @@ export default function WelcomeNavigation({
   onSkip,
   onNext
 }) {
+  const insets = useSafeAreaInsets();
+
   const skipText = isArabic ? 'تخطي' : 'Skip';
   const nextButtonText = currentIndex === slidesLength - 1
     ? (isArabic ? 'ابدأ الآن' : 'Get Started')
     : (isArabic ? 'التالي' : 'Next');
 
-  // Use orange accent for "Get Started" button (last slide)
-  const isLastSlide = currentIndex === slidesLength - 1;
-  const buttonColor = isLastSlide ? '#F69554' : '#4F2396'; // Orange on last, purple on others
+  // Consistent purple color for all buttons
+  const buttonColor = '#4F2396';
 
   const buttonScale = useRef(new Animated.Value(1)).current;
 
@@ -44,7 +46,7 @@ export default function WelcomeNavigation({
       {/* Skip Button */}
       <View
         className={`absolute ${isArabic ? 'left-4' : 'right-4'}`}
-        style={{ top: 50 }}
+        style={{ top: Math.max(insets.top + 16, 50) }}
       >
         <Button
           title={skipText}
@@ -68,9 +70,9 @@ export default function WelcomeNavigation({
       <Animated.View
         style={{
           position: 'absolute',
-          bottom: 100,
-          left: 20,
-          right: 20,
+          bottom: Math.max(insets.bottom + 32, 48),
+          left: 24,
+          right: 24,
           transform: [{ scale: buttonScale }],
         }}
       >
@@ -81,13 +83,13 @@ export default function WelcomeNavigation({
           onPress={onNext}
           style={{
             backgroundColor: buttonColor,
-            borderRadius: 12,
+            borderRadius: 16,
             height: 56,
             shadowColor: buttonColor,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.4,
+            shadowRadius: 12,
+            elevation: 10,
           }}
           textStyle={{
             fontFamily: FONTS.bold,
