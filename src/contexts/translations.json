@@ -8,9 +8,65 @@
       "ar": "التالي",
       "en": "Next"
     },
+    "back": {
+      "ar": "رجوع",
+      "en": "Back"
+    },
+    "cancel": {
+      "ar": "إلغاء",
+      "en": "Cancel"
+    },
+    "ok": {
+      "ar": "حسناً",
+      "en": "OK"
+    },
+    "yes": {
+      "ar": "نعم",
+      "en": "Yes"
+    },
+    "no": {
+      "ar": "لا",
+      "en": "No"
+    },
+    "save": {
+      "ar": "حفظ",
+      "en": "Save"
+    },
+    "edit": {
+      "ar": "تعديل",
+      "en": "Edit"
+    },
+    "delete": {
+      "ar": "حذف",
+      "en": "Delete"
+    },
+    "send": {
+      "ar": "إرسال",
+      "en": "Send"
+    },
+    "search": {
+      "ar": "بحث",
+      "en": "Search"
+    },
+    "loading": {
+      "ar": "جاري التحميل...",
+      "en": "Loading..."
+    },
+    "error": {
+      "ar": "حدث خطأ",
+      "en": "Error occurred"
+    },
+    "success": {
+      "ar": "تم بنجاح",
+      "en": "Success"
+    },
     "getStarted": {
-      "ar": "ابدأ",
+      "ar": "ابدأ الآن",
       "en": "Get Started"
+    },
+    "continue": {
+      "ar": "متابعة",
+      "en": "Continue"
     },
     "english": {
       "ar": "English",
@@ -29,9 +85,49 @@
     "tagline": {
       "ar": "اعثر على شريك حياتك",
       "en": "Find your life partner"
+    },
+    "description": {
+      "ar": "تطبيق زواج مصمم خصيصاً للمسلمين",
+      "en": "Marriage app designed for Muslims"
     }
   },
-  "signIn": {
+  "auth": {
+    "signIn": {
+      "ar": "تسجيل الدخول",
+      "en": "Sign In"
+    },
+    "signUp": {
+      "ar": "إنشاء حساب",
+      "en": "Sign Up"
+    },
+    "signOut": {
+      "ar": "تسجيل الخروج",
+      "en": "Sign Out"
+    },
+    "email": {
+      "ar": "البريد الإلكتروني",
+      "en": "Email"
+    },
+    "password": {
+      "ar": "كلمة المرور",
+      "en": "Password"
+    },
+    "confirmPassword": {
+      "ar": "تأكيد كلمة المرور",
+      "en": "Confirm Password"
+    },
+    "forgotPassword": {
+      "ar": "نسيت كلمة المرور؟",
+      "en": "Forgot Password?"
+    },
+    "noAccount": {
+      "ar": "ليس لديك حساب؟",
+      "en": "Don't have an account?"
+    },
+    "haveAccount": {
+      "ar": "لديك حساب بالفعل؟",
+      "en": "Already have an account?"
+    },
     "googleButton": {
       "ar": "تسجيل الدخول بجوجل",
       "en": "Continue with Google"
@@ -48,8 +144,8 @@
         "en": "Welcome to Nasibni"
       },
       "description": {
-        "ar": "تطبيق الزواج المصمم للعرب والمسلمين",
-        "en": "Marriage app designed for Arabs and Muslims"
+        "ar": "تطبيق الزواج المصمم للمسلمين",
+        "en": "Marriage app designed for Muslims"
       }
     },
     "slide2": {
@@ -73,26 +169,240 @@
       }
     }
   },
-  "languageContext": {
-    "error": {
-      "ar": "يجب استخدام useLanguage داخل LanguageProvider",
-      "en": "useLanguage must be used within a LanguageProvider"
+  "navigation": {
+    "home": {
+      "ar": "الرئيسية",
+      "en": "Home"
     },
-    "detectionError": {
-      "ar": "خطأ في اكتشاف اللغة",
-      "en": "Language detection error"
+    "chats": {
+      "ar": "المحادثات",
+      "en": "Chats"
     },
-    "fallback": {
-      "ar": "الرجوع إلى الإنجليزية في حالة وجود خطأ",
-      "en": "Fallback to English if there's any error"
+    "people": {
+      "ar": "الأشخاص",
+      "en": "People"
     },
-    "deviceLanguage": {
-      "ar": "تعيين اللغة بناءً على لغة الجهاز",
-      "en": "Set language based on device language"
+    "profile": {
+      "ar": "الملف الشخصي",
+      "en": "Profile"
+    }
+  },
+  "home": {
+    "title": {
+      "ar": "اكتشف الأشخاص",
+      "en": "Discover People"
     },
-    "defaultEnglish": {
-      "ar": "الافتراضي إلى الإنجليزية للغات الأخرى",
-      "en": "Default to English for other languages"
+    "noProfiles": {
+      "ar": "لا توجد ملفات شخصية متاحة حالياً",
+      "en": "No profiles available at the moment"
+    },
+    "loading": {
+      "ar": "جاري تحميل الملفات الشخصية...",
+      "en": "Loading profiles..."
+    }
+  },
+  "profile": {
+    "myProfile": {
+      "ar": "ملفي الشخصي",
+      "en": "My Profile"
+    },
+    "editProfile": {
+      "ar": "تعديل الملف الشخصي",
+      "en": "Edit Profile"
+    },
+    "settings": {
+      "ar": "الإعدادات",
+      "en": "Settings"
+    },
+    "about": {
+      "ar": "نبذة عني",
+      "en": "About Me"
+    },
+    "photos": {
+      "ar": "الصور",
+      "en": "Photos"
+    },
+    "addPhoto": {
+      "ar": "إضافة صورة",
+      "en": "Add Photo"
+    }
+  },
+  "chat": {
+    "typeMessage": {
+      "ar": "اكتب رسالة...",
+      "en": "Type a message..."
+    },
+    "noMessages": {
+      "ar": "لا توجد رسائل بعد",
+      "en": "No messages yet"
+    },
+    "startConversation": {
+      "ar": "ابدأ المحادثة",
+      "en": "Start conversation"
+    }
+  },
+  "people": {
+    "whoLikedMe": {
+      "ar": "من أعجب بي",
+      "en": "Who Liked Me"
+    },
+    "whoILiked": {
+      "ar": "من أعجبت بهم",
+      "en": "Who I Liked"
+    },
+    "profileViews": {
+      "ar": "من شاهد ملفي",
+      "en": "Profile Views"
+    },
+    "noLikes": {
+      "ar": "لا توجد إعجابات بعد",
+      "en": "No likes yet"
+    }
+  },
+  "settings": {
+    "title": {
+      "ar": "الإعدادات",
+      "en": "Settings"
+    },
+    "account": {
+      "ar": "الحساب",
+      "en": "Account"
+    },
+    "privacy": {
+      "ar": "الخصوصية",
+      "en": "Privacy"
+    },
+    "language": {
+      "ar": "اللغة",
+      "en": "Language"
+    },
+    "changeLanguage": {
+      "ar": "تغيير اللغة",
+      "en": "Change Language"
+    },
+    "selectLanguage": {
+      "ar": "اختر لغة التطبيق",
+      "en": "Select app language"
+    },
+    "notifications": {
+      "ar": "الإشعارات",
+      "en": "Notifications"
+    },
+    "blockedUsers": {
+      "ar": "المستخدمون المحظورون",
+      "en": "Blocked Users"
+    },
+    "deleteAccount": {
+      "ar": "حذف الحساب",
+      "en": "Delete Account"
+    },
+    "logout": {
+      "ar": "تسجيل الخروج",
+      "en": "Logout"
+    },
+    "showOnlineStatus": {
+      "ar": "إظهار حالة الاتصال",
+      "en": "Show Online Status"
+    },
+    "showLastSeen": {
+      "ar": "إظهار آخر ظهور",
+      "en": "Show Last Seen"
+    },
+    "gpsEnabled": {
+      "ar": "تفعيل الموقع الجغرافي",
+      "en": "Enable GPS Location"
+    }
+  },
+  "actions": {
+    "like": {
+      "ar": "إعجاب",
+      "en": "Like"
+    },
+    "unlike": {
+      "ar": "إلغاء الإعجاب",
+      "en": "Unlike"
+    },
+    "chat": {
+      "ar": "محادثة",
+      "en": "Chat"
+    },
+    "block": {
+      "ar": "حظر",
+      "en": "Block"
+    },
+    "unblock": {
+      "ar": "إلغاء الحظر",
+      "en": "Unblock"
+    },
+    "report": {
+      "ar": "إبلاغ",
+      "en": "Report"
+    },
+    "share": {
+      "ar": "مشاركة",
+      "en": "Share"
+    }
+  },
+  "messages": {
+    "languageChanged": {
+      "ar": "تم تغيير اللغة",
+      "en": "Language Changed"
+    },
+    "languageChangedDescription": {
+      "ar": "سيتم تطبيق التغييرات فوراً",
+      "en": "Changes will apply immediately"
+    },
+    "confirmDelete": {
+      "ar": "تأكيد الحذف",
+      "en": "Confirm Delete"
+    },
+    "deleteAccountWarning": {
+      "ar": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+      "en": "Are you sure you want to delete your account? This action cannot be undone."
+    },
+    "logoutConfirm": {
+      "ar": "هل تريد تسجيل الخروج؟",
+      "en": "Do you want to logout?"
+    }
+  },
+  "errors": {
+    "loadingError": {
+      "ar": "حدث خطأ أثناء التحميل",
+      "en": "Error occurred while loading"
+    },
+    "networkError": {
+      "ar": "خطأ في الاتصال بالإنترنت",
+      "en": "Network connection error"
+    },
+    "tryAgain": {
+      "ar": "حاول مرة أخرى",
+      "en": "Try Again"
+    }
+  },
+  "onboarding": {
+    "step": {
+      "ar": "خطوة",
+      "en": "Step"
+    },
+    "of": {
+      "ar": "من",
+      "en": "of"
+    },
+    "complete": {
+      "ar": "إكمال الملف الشخصي",
+      "en": "Complete Profile"
+    },
+    "basicInfo": {
+      "ar": "المعلومات الأساسية",
+      "en": "Basic Information"
+    },
+    "aboutYou": {
+      "ar": "نبذة عنك",
+      "en": "About You"
+    },
+    "preferences": {
+      "ar": "التفضيلات",
+      "en": "Preferences"
     }
   }
 }

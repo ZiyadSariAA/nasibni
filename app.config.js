@@ -24,8 +24,15 @@ export default {
         foregroundImage: "./src/assets/logos/Logo1.png",
         backgroundColor: "#FFFFFF"
       },
-      edgeToEdgeEnabled: true,
-      package: "com.nasibni.app"
+      package: "com.nasibni.app",
+      // Proper Android configuration for modern edge-to-edge experience
+      // that works correctly with SafeArea
+      softwareKeyboardLayoutMode: "pan",
+      statusBar: {
+        backgroundColor: "transparent",
+        translucent: true,
+        barStyle: "dark-content"
+      }
     },
     web: {
       favicon: "./src/assets/logos/Logo1.png",

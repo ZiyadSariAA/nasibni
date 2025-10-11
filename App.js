@@ -4,6 +4,7 @@ import { LanguageProvider } from './src/contexts/LanguageContext';
 import { TranslationProvider } from './src/contexts/TranslationContext';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { OnboardingProvider } from './src/contexts/OnboardingContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   useFonts,
   Cairo_400Regular,
@@ -45,14 +46,16 @@ export default function App() {
   if (!fontsLoaded) return null;
 
   return (
-    <LanguageProvider>
-      <TranslationProvider>
-        <AuthProvider>
-          <OnboardingProvider>
-            <AppNavigator />
-          </OnboardingProvider>
-        </AuthProvider>
-      </TranslationProvider>
-    </LanguageProvider>
+    <SafeAreaProvider>
+      <LanguageProvider>
+        <TranslationProvider>
+          <AuthProvider>
+            <OnboardingProvider>
+              <AppNavigator />
+            </OnboardingProvider>
+          </AuthProvider>
+        </TranslationProvider>
+      </LanguageProvider>
+    </SafeAreaProvider>
   );
 }

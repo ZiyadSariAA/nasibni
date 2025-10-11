@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, Image, Easing } from 'react-native';
+import { View, Animated, Image, Easing, I18nManager } from 'react-native';
 import { SmartStatusBar } from '../../../components/main';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 /**
  * TransitionScreen - SLOW & ELEGANT animation between Welcome and SignIn
@@ -17,15 +18,17 @@ import { SmartStatusBar } from '../../../components/main';
  * Total: ~3.9 seconds (SLOWER, smoother transition to SignIn)
  */
 export default function TransitionScreen({ navigation }) {
+  const { isRTL, isArabic } = useLanguage();
+  
   // Screen opacity
   const screenOpacity = useRef(new Animated.Value(0)).current;
 
-  // Logo animations (slides from RIGHT)
-  const logoTranslateX = useRef(new Animated.Value(150)).current; // Start off-screen right
+  // Logo animations (slides from RIGHT for RTL, LEFT for LTR)
+  const logoTranslateX = useRef(new Animated.Value(isRTL ? 150 : -150)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
 
-  // Word animations (slides from LEFT)
-  const wordTranslateX = useRef(new Animated.Value(-150)).current; // Start off-screen left
+  // Word animations (slides from LEFT for RTL, RIGHT for LTR)
+  const wordTranslateX = useRef(new Animated.Value(isRTL ? -150 : 150)).current;
   const wordOpacity = useRef(new Animated.Value(0)).current;
 
   // Subtle scale pulse for both
@@ -119,12 +122,12 @@ export default function TransitionScreen({ navigation }) {
       {/* Logo + Word container with scale */}
       <Animated.View
         style={{
-          flexDirection: 'row-reverse',
+          flexDirection: isRTL ? 'row-reverse' : 'row',
           alignItems: 'center',
           transform: [{ scale: groupScale }],
         }}
       >
-        {/* Logo (slides from RIGHT) */}
+        {/* Logo */}
         <Animated.Image
           source={require('../../../assets/logos/Logo1.png')}
           style={{
@@ -141,19 +144,20 @@ export default function TransitionScreen({ navigation }) {
           resizeMode="contain"
         />
 
-        {/* "ناسبني" text (slides from LEFT) */}
+        {/* App name (Arabic/English) */}
         <Animated.Text
           style={{
             fontFamily: 'Tajawal_900Black',
             fontSize: 40,
             color: '#4F2396',
             letterSpacing: 1,
-            marginRight: 16,
+            marginRight: isRTL ? 16 : 0,
+            marginLeft: isRTL ? 0 : 16,
             opacity: wordOpacity,
             transform: [{ translateX: wordTranslateX }],
           }}
         >
-          ناسبني
+          {isArabic ? 'ناسبني' : 'Nasibni'}
         </Animated.Text>
       </Animated.View>
     </Animated.View>

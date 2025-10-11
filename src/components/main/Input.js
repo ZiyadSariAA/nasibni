@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const Input = ({
   label,
@@ -19,6 +20,7 @@ const Input = ({
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { isRTL } = useLanguage();
 
   const getContainerClasses = () => {
     const baseClasses = 'flex-row items-center border border-border rounded-input bg-background px-4 h-input-height';
@@ -59,7 +61,13 @@ const Input = ({
       <View className={getContainerClasses()}>
         <TextInput
           className={getInputClasses()}
-          style={inputStyle}
+          style={[
+            inputStyle,
+            {
+              textAlign: isRTL ? 'right' : 'left',
+              textAlignVertical: multiline ? 'top' : 'center'
+            }
+          ]}
           placeholder={placeholder}
           placeholderTextColor="#6B7280"
           value={value}
@@ -72,6 +80,8 @@ const Input = ({
           autoCapitalize={autoCapitalize}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          textAlign={isRTL ? 'right' : 'left'}
+          textAlignVertical={multiline ? 'top' : 'center'}
           {...props}
         />
         

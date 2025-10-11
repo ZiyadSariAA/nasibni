@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useLanguage } from './LanguageContext';
+import translations from './translations.json';
 
 const TranslationContext = createContext();
 
@@ -12,7 +13,7 @@ export const useTranslation = () => {
 };
 
 export const TranslationProvider = ({ children }) => {
-  const { isArabic, isLoading } = useLanguage();
+  const { isArabic, isRTL, isLoading, language } = useLanguage();
 
   // Don't render until language is loaded
   if (isLoading) {
@@ -48,40 +49,50 @@ export const TranslationProvider = ({ children }) => {
     return fallback;
   };
 
-  // Translation function for common terms
+  // Enhanced translation function with nested key support
   const t = (key) => {
-    const translations = {
-      selectFromList: {
-        en: 'Select from list',
-        ar: 'اختر من القائمة'
-      },
-      selectCountry: {
-        en: 'Select Country',
-        ar: 'اختر الدولة'
-      },
-      search: {
-        en: 'Search...',
-        ar: 'بحث...'
-      },
-      noResults: {
-        en: 'No results found',
-        ar: 'لا توجد نتائج'
-      },
-      selectOption: {
-        en: 'Select an option',
-        ar: 'اختر من القائمة'
+    // Handle nested keys like "common.skip" or "settings.language"
+    const keys = key.split('.');
+    let value = translations;
+    
+    for (const k of keys) {
+      if (value && typeof value === 'object') {
+        value = value[k];
+      } else {
+        // Key not found, return the key itself
+        return key;
       }
-    };
-
-    return getText(translations[key] || { en: key, ar: key });
+    }
+    
+    // If we found a translation object, get the text
+    if (value && typeof value === 'object') {
+      return getText(value);
+    }
+    
+    // If it's already a string, return it
+    if (typeof value === 'string') {
+      return value;
+    }
+    
+    // Fallback to key if nothing found
+    return key;
   };
+
+  // Direct access to translation categories
+  const common = Object.keys(translations.common || {}).reduce((acc, key) => {
+    acc[key] = getText(translations.common[key]);
+    return acc;
+  }, {});
 
   const value = {
     getText,
     getLabel,
     getPlaceholder,
     t,
-    isArabic
+    common,
+    isArabic,
+    isRTL,
+    language
   };
 
   return (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TextInput } from 'react-native';
 import Text from '../Text';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 /**
  * NumberInput Component
@@ -18,6 +19,8 @@ const AnimatedNumberInput = ({
   showAge,
   validation
 }) => {
+  const { isRTL } = useLanguage();
+  
   const placeholderText = typeof placeholder === 'object'
     ? (isArabic ? placeholder.ar : placeholder.en)
     : placeholder;
@@ -46,13 +49,19 @@ const AnimatedNumberInput = ({
         <TextInput
           className={`bg-white rounded-input border border-border p-4 h-input-height ${
             showAge ? 'text-2xl' : 'text-3xl'
-          } font-bold text-text-primary text-center`}
+          } font-bold text-text-primary`}
+          style={{
+            textAlign: 'center',
+            textAlignVertical: 'center'
+          }}
           value={value?.toString() || ''}
           onChangeText={onChange}
           placeholder={placeholderText}
           placeholderTextColor="#9CA3AF"
           keyboardType={keyboardType}
           maxLength={maxLength}
+          textAlign="center"
+          textAlignVertical="center"
         />
       </View>
 
